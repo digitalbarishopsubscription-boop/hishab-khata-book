@@ -20,7 +20,7 @@ const groups: { label: string; items: { title: string; url: string; icon: any }[
       { title: "কাস্টমার", url: "/dashboard", icon: Users },
       { title: "সাপ্লায়ার", url: "/dashboard", icon: Truck },
       { title: "খাতা ও বাকি", url: "/dashboard", icon: BookOpen },
-      { title: "বিক্রয়", url: "/dashboard", icon: ShoppingCart },
+      { title: "বিক্রয়", url: "/sales", icon: ShoppingCart },
       { title: "ক্রয়", url: "/dashboard", icon: ShoppingBag },
       { title: "ইনভেন্টরি", url: "/dashboard", icon: Package },
       { title: "ইনভয়েস", url: "/dashboard", icon: FileText },
