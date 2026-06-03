@@ -1,9 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Trash2, ShoppingCart, FileText, Loader2, Search } from "lucide-react";
+import { Plus, Trash2, ShoppingCart, FileText, Loader2, Search, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
@@ -30,8 +40,27 @@ type Sale = {
   sale_date: string;
 };
 
+export type EditingSale = {
+  id: string;
+  invoice_number: string;
+  customer_name: string;
+  customer_phone: string | null;
+  discount: number;
+  paid: number;
+  payment_method: string;
+  notes: string | null;
+  items: Item[];
+};
+
 function SalesPage() {
   const [tab, setTab] = useState<"entry" | "history">("entry");
+  const [editing, setEditing] = useState<EditingSale | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const startEdit = (s: EditingSale) => {
+    setEditing(s);
+    setTab("entry");
+  };
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-6">
@@ -44,15 +73,15 @@ function SalesPage() {
 
       <div className="inline-flex rounded-lg border bg-card p-1">
         <button
-          onClick={() => setTab("entry")}
+          onClick={() => { setTab("entry"); }}
           className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${
             tab === "entry" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Plus className="inline size-4 mr-1" /> নতুন বিক্রয়
+          <Plus className="inline size-4 mr-1" /> {editing ? "সম্পাদনা" : "নতুন বিক্রয়"}
         </button>
         <button
-          onClick={() => setTab("history")}
+          onClick={() => { setEditing(null); setTab("history"); }}
           className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${
             tab === "history" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
           }`}
@@ -61,12 +90,28 @@ function SalesPage() {
         </button>
       </div>
 
-      {tab === "entry" ? <SalesEntry onSaved={() => setTab("history")} /> : <SalesHistory />}
+      {tab === "entry" ? (
+        <SalesEntry
+          editing={editing}
+          onSaved={() => { setEditing(null); setReloadKey((k) => k + 1); setTab("history"); }}
+          onCancelEdit={() => setEditing(null)}
+        />
+      ) : (
+        <SalesHistory reloadKey={reloadKey} onEdit={startEdit} onDeleted={() => setReloadKey((k) => k + 1)} />
+      )}
     </div>
   );
 }
 
-function SalesEntry({ onSaved }: { onSaved: () => void }) {
+function SalesEntry({
+  editing,
+  onSaved,
+  onCancelEdit,
+}: {
+  editing: EditingSale | null;
+  onSaved: () => void;
+  onCancelEdit: () => void;
+}) {
   const { user } = useAuth();
   const [customer, setCustomer] = useState("");
   const [phone, setPhone] = useState("");
@@ -76,6 +121,18 @@ function SalesEntry({ onSaved }: { onSaved: () => void }) {
   const [notes, setNotes] = useState("");
   const [items, setItems] = useState<Item[]>([{ product_name: "", quantity: 1, unit_price: 0 }]);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (editing) {
+      setCustomer(editing.customer_name);
+      setPhone(editing.customer_phone || "");
+      setPaymentMethod(editing.payment_method);
+      setDiscount(Number(editing.discount) || 0);
+      setPaid(Number(editing.paid) || 0);
+      setNotes(editing.notes || "");
+      setItems(editing.items.length ? editing.items : [{ product_name: "", quantity: 1, unit_price: 0 }]);
+    }
+  }, [editing]);
 
   const subtotal = useMemo(
     () => items.reduce((s, it) => s + (Number(it.quantity) || 0) * (Number(it.unit_price) || 0), 0),
@@ -104,40 +161,76 @@ function SalesEntry({ onSaved }: { onSaved: () => void }) {
 
     setSaving(true);
     try {
-      const invoiceNumber = `INV-${Date.now().toString().slice(-8)}`;
-      const { data: sale, error } = await supabase
-        .from("sales")
-        .insert({
+      if (editing) {
+        const { error: upErr } = await supabase
+          .from("sales")
+          .update({
+            customer_name: customer.trim(),
+            customer_phone: phone.trim() || null,
+            subtotal,
+            discount: Number(discount) || 0,
+            total,
+            paid: Number(paid) || 0,
+            due,
+            payment_method: paymentMethod,
+            notes: notes.trim() || null,
+          })
+          .eq("id", editing.id);
+        if (upErr) throw upErr;
+
+        const { error: delErr } = await supabase.from("sale_items").delete().eq("sale_id", editing.id);
+        if (delErr) throw delErr;
+
+        const itemRows = validItems.map((it) => ({
+          sale_id: editing.id,
           user_id: user.id,
-          invoice_number: invoiceNumber,
-          customer_name: customer.trim(),
-          customer_phone: phone.trim() || null,
-          subtotal,
-          discount: Number(discount) || 0,
-          total,
-          paid: Number(paid) || 0,
-          due,
-          payment_method: paymentMethod,
-          notes: notes.trim() || null,
-        })
-        .select()
-        .single();
-      if (error) throw error;
+          product_name: it.product_name.trim(),
+          quantity: Number(it.quantity),
+          unit_price: Number(it.unit_price),
+          total: Number(it.quantity) * Number(it.unit_price),
+        }));
+        const { error: itemErr } = await supabase.from("sale_items").insert(itemRows);
+        if (itemErr) throw itemErr;
 
-      const itemRows = validItems.map((it) => ({
-        sale_id: sale.id,
-        user_id: user.id,
-        product_name: it.product_name.trim(),
-        quantity: Number(it.quantity),
-        unit_price: Number(it.unit_price),
-        total: Number(it.quantity) * Number(it.unit_price),
-      }));
-      const { error: itemErr } = await supabase.from("sale_items").insert(itemRows);
-      if (itemErr) throw itemErr;
+        toast.success(`আপডেট হয়েছে — ${editing.invoice_number}`);
+        reset();
+        onSaved();
+      } else {
+        const invoiceNumber = `INV-${Date.now().toString().slice(-8)}`;
+        const { data: sale, error } = await supabase
+          .from("sales")
+          .insert({
+            user_id: user.id,
+            invoice_number: invoiceNumber,
+            customer_name: customer.trim(),
+            customer_phone: phone.trim() || null,
+            subtotal,
+            discount: Number(discount) || 0,
+            total,
+            paid: Number(paid) || 0,
+            due,
+            payment_method: paymentMethod,
+            notes: notes.trim() || null,
+          })
+          .select()
+          .single();
+        if (error) throw error;
 
-      toast.success(`বিক্রয় সংরক্ষিত — ${invoiceNumber}`);
-      reset();
-      onSaved();
+        const itemRows = validItems.map((it) => ({
+          sale_id: sale.id,
+          user_id: user.id,
+          product_name: it.product_name.trim(),
+          quantity: Number(it.quantity),
+          unit_price: Number(it.unit_price),
+          total: Number(it.quantity) * Number(it.unit_price),
+        }));
+        const { error: itemErr } = await supabase.from("sale_items").insert(itemRows);
+        if (itemErr) throw itemErr;
+
+        toast.success(`বিক্রয় সংরক্ষিত — ${invoiceNumber}`);
+        reset();
+        onSaved();
+      }
     } catch (err: any) {
       toast.error(err.message || "সংরক্ষণে সমস্যা হয়েছে");
     } finally {
@@ -147,6 +240,18 @@ function SalesEntry({ onSaved }: { onSaved: () => void }) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-5">
+      {editing && (
+        <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5">
+          <div className="text-sm">
+            <span className="text-muted-foreground">সম্পাদনা: </span>
+            <span className="font-mono font-medium">{editing.invoice_number}</span>
+          </div>
+          <Button type="button" variant="ghost" size="sm" onClick={() => { onCancelEdit(); reset(); }}>
+            বাতিল
+          </Button>
+        </div>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">কাস্টমার তথ্য</CardTitle>
@@ -264,7 +369,7 @@ function SalesEntry({ onSaved }: { onSaved: () => void }) {
         <Button type="button" variant="outline" onClick={reset} disabled={saving}>রিসেট</Button>
         <Button type="submit" disabled={saving}>
           {saving ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
-          বিক্রয় সংরক্ষণ
+          {editing ? "আপডেট করুন" : "বিক্রয় সংরক্ষণ"}
         </Button>
       </div>
     </form>
@@ -280,11 +385,21 @@ function Row({ label, value, big }: { label: string; value: string; big?: boolea
   );
 }
 
-function SalesHistory() {
+function SalesHistory({
+  reloadKey,
+  onEdit,
+  onDeleted,
+}: {
+  reloadKey: number;
+  onEdit: (s: EditingSale) => void;
+  onDeleted: () => void;
+}) {
   const { user } = useAuth();
   const [rows, setRows] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Sale | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -299,13 +414,69 @@ function SalesHistory() {
       setRows((data as Sale[]) || []);
       setLoading(false);
     })();
-  }, [user]);
+  }, [user, reloadKey]);
 
   const filtered = rows.filter(
     (r) =>
       r.customer_name.toLowerCase().includes(q.toLowerCase()) ||
       r.invoice_number.toLowerCase().includes(q.toLowerCase()),
   );
+
+  const handleEdit = async (id: string) => {
+    setBusyId(id);
+    try {
+      const { data: sale, error } = await supabase
+        .from("sales")
+        .select("*")
+        .eq("id", id)
+        .single();
+      if (error) throw error;
+      const { data: items, error: iErr } = await supabase
+        .from("sale_items")
+        .select("product_name,quantity,unit_price")
+        .eq("sale_id", id);
+      if (iErr) throw iErr;
+      onEdit({
+        id: sale.id,
+        invoice_number: sale.invoice_number,
+        customer_name: sale.customer_name,
+        customer_phone: sale.customer_phone,
+        discount: Number(sale.discount),
+        paid: Number(sale.paid),
+        payment_method: sale.payment_method,
+        notes: sale.notes,
+        items: (items || []).map((it: any) => ({
+          product_name: it.product_name,
+          quantity: Number(it.quantity),
+          unit_price: Number(it.unit_price),
+        })),
+      });
+    } catch (e: any) {
+      toast.error(e.message || "লোড করতে সমস্যা হয়েছে");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
+    const id = confirmDelete.id;
+    setBusyId(id);
+    try {
+      const { error: iErr } = await supabase.from("sale_items").delete().eq("sale_id", id);
+      if (iErr) throw iErr;
+      const { error } = await supabase.from("sales").delete().eq("id", id);
+      if (error) throw error;
+      setRows((prev) => prev.filter((r) => r.id !== id));
+      toast.success("বিক্রয় মুছে ফেলা হয়েছে");
+      setConfirmDelete(null);
+      onDeleted();
+    } catch (e: any) {
+      toast.error(e.message || "মুছতে সমস্যা হয়েছে");
+    } finally {
+      setBusyId(null);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -357,11 +528,31 @@ function SalesHistory() {
                     )}
                   </td>
                   <td className="px-3 py-2.5 text-right">
-                    <Button asChild variant="ghost" size="sm">
-                      <Link to="/sales/$id/invoice" params={{ id: r.id }}>
-                        <FileText className="size-4" /> ইনভয়েস
-                      </Link>
-                    </Button>
+                    <div className="inline-flex items-center gap-1">
+                      <Button asChild variant="ghost" size="icon" title="ইনভয়েস">
+                        <Link to="/sales/$id/invoice" params={{ id: r.id }}>
+                          <FileText className="size-4" />
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title="সম্পাদনা"
+                        onClick={() => handleEdit(r.id)}
+                        disabled={busyId === r.id}
+                      >
+                        {busyId === r.id ? <Loader2 className="size-4 animate-spin" /> : <Pencil className="size-4" />}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title="মুছুন"
+                        onClick={() => setConfirmDelete(r)}
+                        disabled={busyId === r.id}
+                      >
+                        <Trash2 className="size-4 text-destructive" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -369,6 +560,32 @@ function SalesHistory() {
           </table>
         </div>
       )}
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>বিক্রয় মুছে ফেলবেন?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmDelete && (
+                <>
+                  ইনভয়েস <span className="font-mono font-medium">{confirmDelete.invoice_number}</span> এবং এর সব আইটেম
+                  স্থায়ীভাবে মুছে যাবে। এটি ফেরানো যাবে না।
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={!!busyId}>বাতিল</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleDelete(); }}
+              disabled={!!busyId}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {busyId ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />} মুছুন
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
