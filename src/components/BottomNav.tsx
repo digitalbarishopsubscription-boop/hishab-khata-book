@@ -4,8 +4,8 @@ import { LayoutDashboard, ShoppingCart, BookOpen, Bot, Menu } from "lucide-react
 const items = [
   { title: "ড্যাশবোর্ড", url: "/dashboard", icon: LayoutDashboard },
   { title: "বিক্রয়", url: "/sales", icon: ShoppingCart },
-  { title: "খাতা", url: "/dashboard", icon: BookOpen },
-  { title: "এআই", url: "/dashboard", icon: Bot },
+  { title: "খাতা", url: "/khata", icon: BookOpen },
+  { title: "কাস্টমার", url: "/customers", icon: Bot },
   { title: "আরও", url: "/dashboard", icon: Menu },
 ];
 
