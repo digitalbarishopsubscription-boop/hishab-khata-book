@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, Truck, BookOpen, ShoppingCart, ShoppingBag,
   Package, FileText, Receipt, Wallet, UserCog, Building2, BarChart3,
-  Bot, Bell, Crown, Shield, Settings, LogOut,
+  Bot, Bell, Crown, Shield, Settings, LogOut, HandCoins,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
