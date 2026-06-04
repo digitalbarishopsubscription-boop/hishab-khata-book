@@ -5,7 +5,7 @@ const items = [
   { title: "ড্যাশবোর্ড", url: "/dashboard", icon: LayoutDashboard },
   { title: "বিক্রয়", url: "/sales", icon: ShoppingCart },
   { title: "খাতা", url: "/khata", icon: BookOpen },
-  { title: "কাস্টমার", url: "/customers", icon: Bot },
+  { title: "কাস্টমার", url: "/customers", icon: Users },
   { title: "আরও", url: "/dashboard", icon: Menu },
 ];
 
