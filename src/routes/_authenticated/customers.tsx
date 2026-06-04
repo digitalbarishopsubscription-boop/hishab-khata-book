@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Loader2, Plus, Pencil, Trash2, Users as UsersIcon, Phone, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -153,9 +153,11 @@ function CustomersPage() {
           {filtered.map((c) => (
             <Card key={c.id}>
               <CardHeader className="pb-2">
-                <CardTitle className="flex items-center justify-between">
-                  <span className="truncate">{c.name}</span>
-                  <div className="flex gap-1">
+                <CardTitle className="flex items-center justify-between gap-2">
+                  <Link to="/customers/$id" params={{ id: c.id }} className="truncate hover:text-primary transition-colors">
+                    {c.name}
+                  </Link>
+                  <div className="flex gap-1 shrink-0">
                     <Button size="icon" variant="ghost" onClick={() => openEdit(c)}><Pencil className="size-4" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => setDeleteId(c.id)}><Trash2 className="size-4 text-destructive" /></Button>
                   </div>
