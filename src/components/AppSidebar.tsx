@@ -17,9 +17,9 @@ const groups: { label: string; items: { title: string; url: string; icon: any }[
   {
     label: "ব্যবসায়িক",
     items: [
-      { title: "কাস্টমার", url: "/dashboard", icon: Users },
+      { title: "কাস্টমার", url: "/customers", icon: Users },
       { title: "সাপ্লায়ার", url: "/dashboard", icon: Truck },
-      { title: "খাতা ও বাকি", url: "/dashboard", icon: BookOpen },
+      { title: "খাতা ও বাকি", url: "/khata", icon: BookOpen },
       { title: "বিক্রয়", url: "/sales", icon: ShoppingCart },
       { title: "ক্রয়", url: "/dashboard", icon: ShoppingBag },
       { title: "ইনভেন্টরি", url: "/dashboard", icon: Package },
