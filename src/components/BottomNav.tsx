@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, ShoppingCart, BookOpen, Bot, Menu } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, BookOpen, Users, Menu } from "lucide-react";
 
 const items = [
   { title: "ড্যাশবোর্ড", url: "/dashboard", icon: LayoutDashboard },
