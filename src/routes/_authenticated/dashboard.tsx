@@ -46,6 +46,7 @@ type Stats = {
   todayPaid: number;
   todayDue: number;
   totalReceivable: number;
+  totalDueCollection: number;
   monthSales: number;
   monthCount: number;
   recent: Sale[];
@@ -53,7 +54,7 @@ type Stats = {
 
 const empty: Stats = {
   todaySales: 0, todayPaid: 0, todayDue: 0,
-  totalReceivable: 0, monthSales: 0, monthCount: 0, recent: [],
+  totalReceivable: 0, totalDueCollection: 0, monthSales: 0, monthCount: 0, recent: [],
 };
 
 function Dashboard() {
@@ -70,11 +71,17 @@ function Dashboard() {
       const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-      const { data, error } = await supabase
-        .from("sales")
-        .select("id,invoice_number,customer_name,total,paid,due,sale_date")
-        .order("sale_date", { ascending: false })
-        .limit(500);
+      const [{ data, error }, { data: payments }] = await Promise.all([
+        supabase
+          .from("sales")
+          .select("id,invoice_number,customer_name,total,paid,due,sale_date")
+          .order("sale_date", { ascending: false })
+          .limit(500),
+        supabase
+          .from("khata_transactions")
+          .select("amount,type")
+          .eq("type", "payment"),
+      ]);
 
       if (error) {
         setStats(empty);
@@ -84,11 +91,13 @@ function Dashboard() {
       const rows = (data || []) as Sale[];
       const today = rows.filter((r) => r.sale_date >= startOfDay);
       const month = rows.filter((r) => r.sale_date >= startOfMonth);
+      const khataPayments = (payments || []).reduce((s: number, r: any) => s + Number(r.amount), 0);
       setStats({
         todaySales: today.reduce((s, r) => s + Number(r.total), 0),
         todayPaid: today.reduce((s, r) => s + Number(r.paid), 0),
         todayDue: today.reduce((s, r) => s + Number(r.due), 0),
         totalReceivable: rows.reduce((s, r) => s + Number(r.due), 0),
+        totalDueCollection: khataPayments,
         monthSales: month.reduce((s, r) => s + Number(r.total), 0),
         monthCount: month.length,
         recent: rows.slice(0, 5),
@@ -100,8 +109,8 @@ function Dashboard() {
   const kpis = [
     { label: "আজকের বিক্রয়", value: stats.todaySales, icon: ShoppingCart, tone: "primary" },
     { label: "আজকের পরিশোধিত", value: stats.todayPaid, icon: Wallet, tone: "success" },
-    { label: "আজকের বাকি", value: stats.todayDue, icon: AlertCircle, tone: "warning" },
-    { label: "মোট পাবো", value: stats.totalReceivable, icon: TrendingUp, tone: "gold" },
+    { label: "মোট পাবো (বাকি)", value: stats.totalReceivable, icon: AlertCircle, tone: "warning" },
+    { label: "মোট বাকি আদায়", value: stats.totalDueCollection, icon: TrendingUp, tone: "gold" },
   ];
 
   return (

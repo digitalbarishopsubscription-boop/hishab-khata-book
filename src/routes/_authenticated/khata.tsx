@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Plus, Trash2, BookOpen, ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -231,7 +231,11 @@ function KhataPage() {
                 {txns.map((t) => (
                   <TableRow key={t.id}>
                     <TableCell className="text-xs text-muted-foreground">{new Date(t.transaction_date).toLocaleDateString("bn-BD")}</TableCell>
-                    <TableCell className="font-medium">{t.customer_name}</TableCell>
+                    <TableCell className="font-medium">
+                      {t.customer_id ? (
+                        <Link to="/customers/$id" params={{ id: t.customer_id }} className="hover:text-primary">{t.customer_name}</Link>
+                      ) : t.customer_name}
+                    </TableCell>
                     <TableCell>
                       {t.type === "due" ? (
                         <span className="inline-flex items-center gap-1 text-destructive text-xs"><ArrowUpCircle className="size-3.5" /> বাকি</span>

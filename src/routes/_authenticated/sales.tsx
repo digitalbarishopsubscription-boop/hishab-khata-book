@@ -4,6 +4,8 @@ import { Plus, Trash2, ShoppingCart, FileText, Loader2, Search, Pencil } from "l
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +35,8 @@ type Sale = {
   invoice_number: string;
   customer_name: string;
   customer_phone: string | null;
+  customer_id: string | null;
+  customer_type: string;
   total: number;
   paid: number;
   due: number;
@@ -45,12 +49,16 @@ export type EditingSale = {
   invoice_number: string;
   customer_name: string;
   customer_phone: string | null;
+  customer_id: string | null;
+  customer_type: string;
   discount: number;
   paid: number;
   payment_method: string;
   notes: string | null;
   items: Item[];
 };
+
+type CustomerLite = { id: string; name: string; phone: string | null };
 
 function SalesPage() {
   const [tab, setTab] = useState<"entry" | "history">("entry");
@@ -113,6 +121,8 @@ function SalesEntry({
   onCancelEdit: () => void;
 }) {
   const { user } = useAuth();
+  const [customerType, setCustomerType] = useState<"walkin" | "registered">("walkin");
+  const [customerId, setCustomerId] = useState<string>("");
   const [customer, setCustomer] = useState("");
   const [phone, setPhone] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cash");
@@ -121,9 +131,19 @@ function SalesEntry({
   const [notes, setNotes] = useState("");
   const [items, setItems] = useState<Item[]>([{ product_name: "", quantity: 1, unit_price: 0 }]);
   const [saving, setSaving] = useState(false);
+  const [customers, setCustomers] = useState<CustomerLite[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("customers").select("id,name,phone").order("name");
+      setCustomers((data ?? []) as CustomerLite[]);
+    })();
+  }, []);
 
   useEffect(() => {
     if (editing) {
+      setCustomerType((editing.customer_type as "walkin" | "registered") || "walkin");
+      setCustomerId(editing.customer_id || "");
       setCustomer(editing.customer_name);
       setPhone(editing.customer_phone || "");
       setPaymentMethod(editing.payment_method);
@@ -148,16 +168,30 @@ function SalesEntry({
   const removeItem = (i: number) => setItems((p) => (p.length === 1 ? p : p.filter((_, idx) => idx !== i)));
 
   const reset = () => {
-    setCustomer(""); setPhone(""); setPaymentMethod("cash"); setDiscount(0); setPaid(0); setNotes("");
+    setCustomerType("walkin"); setCustomerId(""); setCustomer(""); setPhone("");
+    setPaymentMethod("cash"); setDiscount(0); setPaid(0); setNotes("");
     setItems([{ product_name: "", quantity: 1, unit_price: 0 }]);
+  };
+
+  const onPickCustomer = (id: string) => {
+    setCustomerId(id);
+    const c = customers.find((x) => x.id === id);
+    if (c) {
+      setCustomer(c.name);
+      setPhone(c.phone || "");
+    }
   };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    if (customerType === "registered" && !customerId) return toast.error("রেজিস্টার্ড কাস্টমার সিলেক্ট করুন");
     if (!customer.trim()) return toast.error("কাস্টমারের নাম দিন");
     const validItems = items.filter((it) => it.product_name.trim() && it.quantity > 0);
     if (validItems.length === 0) return toast.error("কমপক্ষে একটি পণ্য যোগ করুন");
+
+    const finalCustomerId = customerType === "registered" ? customerId : null;
+    const finalType = customerType;
 
     setSaving(true);
     try {
@@ -167,6 +201,8 @@ function SalesEntry({
           .update({
             customer_name: customer.trim(),
             customer_phone: phone.trim() || null,
+            customer_id: finalCustomerId,
+            customer_type: finalType,
             subtotal,
             discount: Number(discount) || 0,
             total,
@@ -204,6 +240,8 @@ function SalesEntry({
             invoice_number: invoiceNumber,
             customer_name: customer.trim(),
             customer_phone: phone.trim() || null,
+            customer_id: finalCustomerId,
+            customer_type: finalType,
             subtotal,
             discount: Number(discount) || 0,
             total,
@@ -256,14 +294,61 @@ function SalesEntry({
         <CardHeader>
           <CardTitle className="text-base">কাস্টমার তথ্য</CardTitle>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-4">
+        <CardContent className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-1.5 block">কাস্টমারের নাম *</label>
-            <Input value={customer} onChange={(e) => setCustomer(e.target.value)} placeholder="যেমন: রহিম মিয়া" />
+            <Label className="mb-2 block">কাস্টমার টাইপ</Label>
+            <div className="inline-flex rounded-lg border bg-muted/30 p-1">
+              <button
+                type="button"
+                onClick={() => { setCustomerType("walkin"); setCustomerId(""); }}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${
+                  customerType === "walkin" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                }`}
+              >Walk-in</button>
+              <button
+                type="button"
+                onClick={() => setCustomerType("registered")}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${
+                  customerType === "registered" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                }`}
+              >Registered</button>
+            </div>
           </div>
-          <div>
-            <label className="text-sm font-medium mb-1.5 block">মোবাইল</label>
-            <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="০১৭xxxxxxxx" />
+
+          {customerType === "registered" && (
+            <div>
+              <Label className="mb-1.5 block">কাস্টমার নির্বাচন *</Label>
+              <Select value={customerId} onValueChange={onPickCustomer}>
+                <SelectTrigger><SelectValue placeholder="কাস্টমার সিলেক্ট করুন" /></SelectTrigger>
+                <SelectContent>
+                  {customers.length === 0 && <div className="p-2 text-sm text-muted-foreground">কোনো কাস্টমার নেই</div>}
+                  {customers.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}{c.phone ? ` — ${c.phone}` : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label className="mb-1.5 block">কাস্টমারের নাম *</Label>
+              <Input
+                value={customer}
+                onChange={(e) => setCustomer(e.target.value)}
+                placeholder="যেমন: রহিম মিয়া"
+                disabled={customerType === "registered" && !!customerId}
+              />
+            </div>
+            <div>
+              <Label className="mb-1.5 block">মোবাইল</Label>
+              <Input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="০১৭xxxxxxxx"
+                disabled={customerType === "registered" && !!customerId}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -398,6 +483,7 @@ function SalesHistory({
   const [rows, setRows] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [filter, setFilter] = useState<"all" | "walkin" | "registered">("all");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Sale | null>(null);
 
@@ -407,20 +493,32 @@ function SalesHistory({
       setLoading(true);
       const { data, error } = await supabase
         .from("sales")
-        .select("id,invoice_number,customer_name,customer_phone,total,paid,due,payment_method,sale_date")
+        .select("id,invoice_number,customer_name,customer_phone,customer_id,customer_type,total,paid,due,payment_method,sale_date")
         .order("sale_date", { ascending: false })
-        .limit(200);
+        .limit(500);
       if (error) toast.error(error.message);
       setRows((data as Sale[]) || []);
       setLoading(false);
     })();
   }, [user, reloadKey]);
 
-  const filtered = rows.filter(
+  const byFilter = rows.filter((r) => filter === "all" ? true : (r.customer_type || "walkin") === filter);
+  const filtered = byFilter.filter(
     (r) =>
       r.customer_name.toLowerCase().includes(q.toLowerCase()) ||
       r.invoice_number.toLowerCase().includes(q.toLowerCase()),
   );
+
+  const summary = useMemo(() => {
+    let total = 0, walkin = 0, registered = 0;
+    for (const r of byFilter) {
+      const t = Number(r.total);
+      total += t;
+      if ((r.customer_type || "walkin") === "registered") registered += t;
+      else walkin += t;
+    }
+    return { total, walkin, registered, count: byFilter.length };
+  }, [byFilter]);
 
   const handleEdit = async (id: string) => {
     setBusyId(id);
@@ -441,6 +539,8 @@ function SalesHistory({
         invoice_number: sale.invoice_number,
         customer_name: sale.customer_name,
         customer_phone: sale.customer_phone,
+        customer_id: (sale as any).customer_id ?? null,
+        customer_type: (sale as any).customer_type ?? "walkin",
         discount: Number(sale.discount),
         paid: Number(sale.paid),
         payment_method: sale.payment_method,
@@ -480,9 +580,26 @@ function SalesHistory({
 
   return (
     <div className="space-y-4">
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-        <Input className="pl-9" placeholder="ইনভয়েস বা নাম খুঁজুন" value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Card><CardContent className="p-4"><div className="text-xs text-muted-foreground">মোট বিক্রয়</div><div className="text-lg font-bold mt-1">৳{fmt(summary.total)}</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-xs text-muted-foreground">Walk-in</div><div className="text-lg font-bold mt-1">৳{fmt(summary.walkin)}</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-xs text-muted-foreground">Registered</div><div className="text-lg font-bold mt-1">৳{fmt(summary.registered)}</div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="text-xs text-muted-foreground">লেনদেন</div><div className="text-lg font-bold mt-1">{bn(summary.count)}</div></CardContent></Card>
+      </div>
+
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative max-w-sm flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input className="pl-9" placeholder="ইনভয়েস বা নাম খুঁজুন" value={q} onChange={(e) => setQ(e.target.value)} />
+        </div>
+        <Select value={filter} onValueChange={(v) => setFilter(v as any)}>
+          <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">সকল বিক্রয়</SelectItem>
+            <SelectItem value="walkin">Walk-in</SelectItem>
+            <SelectItem value="registered">Registered</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {loading ? (
@@ -502,6 +619,7 @@ function SalesHistory({
               <tr>
                 <th className="px-3 py-2.5 font-medium">ইনভয়েস</th>
                 <th className="px-3 py-2.5 font-medium">কাস্টমার</th>
+                <th className="px-3 py-2.5 font-medium">টাইপ</th>
                 <th className="px-3 py-2.5 font-medium">তারিখ</th>
                 <th className="px-3 py-2.5 font-medium text-right">মোট</th>
                 <th className="px-3 py-2.5 font-medium text-right">বাকি</th>
@@ -513,8 +631,19 @@ function SalesHistory({
                 <tr key={r.id} className="border-t hover:bg-muted/30">
                   <td className="px-3 py-2.5 font-mono text-xs">{r.invoice_number}</td>
                   <td className="px-3 py-2.5">
-                    <div className="font-medium">{r.customer_name}</div>
+                    {r.customer_id ? (
+                      <Link to="/customers/$id" params={{ id: r.customer_id }} className="font-medium hover:text-primary">
+                        {r.customer_name}
+                      </Link>
+                    ) : (
+                      <div className="font-medium">{r.customer_name}</div>
+                    )}
                     {r.customer_phone && <div className="text-xs text-muted-foreground">{bn(r.customer_phone)}</div>}
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${(r.customer_type || "walkin") === "registered" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                      {(r.customer_type || "walkin") === "registered" ? "Registered" : "Walk-in"}
+                    </span>
                   </td>
                   <td className="px-3 py-2.5 text-muted-foreground">
                     {bn(new Date(r.sale_date).toLocaleDateString("en-GB"))}
