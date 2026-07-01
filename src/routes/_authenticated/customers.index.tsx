@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, Plus, Pencil, Trash2, Users as UsersIcon, Phone, MapPin } from "lucide-react";
+import { ArrowRight, Loader2, Plus, Pencil, Trash2, Users as UsersIcon, Phone, MapPin, Search, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,7 @@ const emptyForm = { name: "", phone: "", address: "", notes: "" };
 
 function CustomersPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [list, setList] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -126,6 +127,10 @@ function CustomersPage() {
     (c) => c.name.toLowerCase().includes(search.toLowerCase()) || (c.phone ?? "").includes(search),
   );
 
+  const openProfile = (id: string) => {
+    navigate({ to: "/customers/$id", params: { id } });
+  };
+
   return (
     <div className="p-4 lg:p-6 space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -180,12 +185,15 @@ function CustomersPage() {
         </Dialog>
       </div>
 
-      <Input
-        placeholder="খুঁজুন (নাম বা ফোন)"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="max-w-sm"
-      />
+      <div className="relative max-w-sm">
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-primary" />
+        <Input
+          placeholder="খুঁজুন (নাম বা ফোন)"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-12 rounded-2xl border-primary/20 bg-card pl-10 shadow-card focus-visible:ring-primary"
+        />
+      </div>
 
       {loading ? (
         <div className="grid place-items-center py-20">
@@ -202,36 +210,63 @@ function CustomersPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((c) => (
-            <Card key={c.id}>
+            <Card
+              key={c.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => openProfile(c.id)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  openProfile(c.id);
+                }
+              }}
+              className="group cursor-pointer overflow-hidden border-primary/15 bg-gradient-to-br from-card via-card to-primary/10 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-elegant focus:outline-none focus:ring-2 focus:ring-primary/40"
+            >
               <CardHeader className="pb-2">
-                <CardTitle className="flex items-center justify-between gap-2">
-                  <Link to="/customers/$id" params={{ id: c.id }} className="truncate hover:text-primary transition-colors">
-                    {c.name}
-                  </Link>
-                  <div className="flex gap-1 shrink-0">
-                    <Button size="icon" variant="ghost" onClick={() => openEdit(c)}>
+                <CardTitle className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
+                      <UserRound className="size-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <Link
+                        to="/customers/$id"
+                        params={{ id: c.id }}
+                        onClick={(event) => event.stopPropagation()}
+                        className="block truncate text-base font-bold text-foreground transition-colors hover:text-primary"
+                      >
+                        {c.name}
+                      </Link>
+                      <span className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary">
+                        প্রোফাইল দেখুন <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex gap-1 shrink-0" onClick={(event) => event.stopPropagation()}>
+                    <Button size="icon" variant="ghost" className="rounded-xl hover:bg-primary/10 hover:text-primary" onClick={() => openEdit(c)}>
                       <Pencil className="size-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={() => setDeleteId(c.id)}>
+                    <Button size="icon" variant="ghost" className="rounded-xl hover:bg-destructive/10" onClick={() => setDeleteId(c.id)}>
                       <Trash2 className="size-4 text-destructive" />
                     </Button>
                   </div>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-sm space-y-1.5">
+              <CardContent className="space-y-2.5 text-sm">
                 {c.phone && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Phone className="size-3.5" /> {c.phone}
+                  <div className="flex items-center gap-2 rounded-xl bg-primary/5 px-3 py-2 text-muted-foreground">
+                    <Phone className="size-3.5 text-primary" /> {c.phone}
                   </div>
                 )}
                 {c.address && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="size-3.5" /> {c.address}
+                  <div className="flex items-center gap-2 rounded-xl bg-primary/5 px-3 py-2 text-muted-foreground">
+                    <MapPin className="size-3.5 text-primary" /> {c.address}
                   </div>
                 )}
-                {c.notes && <div className="text-xs text-muted-foreground pt-1 border-t">{c.notes}</div>}
+                {c.notes && <div className="rounded-xl border border-primary/10 bg-card/80 px-3 py-2 text-xs text-muted-foreground">{c.notes}</div>}
               </CardContent>
             </Card>
           ))}

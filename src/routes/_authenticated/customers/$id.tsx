@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Loader2, Phone, MapPin, FileText, BookOpen } from "lucide-react";
+import { ArrowLeft, Loader2, Phone, MapPin, FileText, BookOpen, UserRound, Wallet, ReceiptText, BadgeCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -121,38 +121,55 @@ function CustomerProfile() {
   );
 
   return (
-    <div className="p-4 lg:p-6 space-y-4">
+    <div className="space-y-5 p-4 lg:p-6">
       <div className="flex items-center gap-3">
-        <Link to="/customers"><Button variant="outline" size="sm"><ArrowLeft className="size-4" /> ফিরে যান</Button></Link>
-        <h1 className="text-2xl font-bold text-display">{customer.name}</h1>
+        <Link to="/customers">
+          <Button variant="outline" size="sm" className="rounded-xl border-primary/20 hover:bg-primary/10 hover:text-primary">
+            <ArrowLeft className="size-4" /> ফিরে যান
+          </Button>
+        </Link>
       </div>
 
-      <div className="grid md:grid-cols-4 gap-3">
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">প্রোফাইল</CardTitle></CardHeader>
-          <CardContent className="text-sm space-y-1.5">
-            {customer.phone && <div className="flex items-center gap-2"><Phone className="size-4" /> {customer.phone}</div>}
-            {customer.address && <div className="flex items-center gap-2"><MapPin className="size-4" /> {customer.address}</div>}
-            {customer.notes && <div className="flex items-start gap-2"><FileText className="size-4 mt-0.5" /> <span>{customer.notes}</span></div>}
-            {!customer.phone && !customer.address && !customer.notes && <span className="text-muted-foreground">—</span>}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">মোট কেনাকাটা</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold">{fmt(stats.totalPurchase)}</div></CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">মোট পরিশোধ</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold text-primary">{fmt(stats.totalPayments)}</div></CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">বর্তমান বাকি</CardTitle></CardHeader>
-          <CardContent><div className={`text-2xl font-bold ${stats.currentDue > 0 ? "text-destructive" : "text-success"}`}>{fmt(stats.currentDue)}</div></CardContent>
-        </Card>
-      </div>
+      <section className="overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-br from-primary via-primary to-primary-glow text-primary-foreground shadow-elegant">
+        <div className="grid gap-5 p-5 md:grid-cols-[1.2fr_2fr] lg:p-6">
+          <div className="flex items-start gap-4">
+            <div className="grid size-16 shrink-0 place-items-center rounded-3xl bg-primary-foreground/18 shadow-glow">
+              <UserRound className="size-8" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium opacity-85">কাস্টমার প্রোফাইল</p>
+              <h1 className="text-3xl font-bold text-display leading-tight lg:text-4xl">{customer.name}</h1>
+              <div className="mt-4 space-y-2 text-sm opacity-95">
+                {customer.phone && <div className="flex items-center gap-2"><Phone className="size-4" /> {customer.phone}</div>}
+                {customer.address && <div className="flex items-center gap-2"><MapPin className="size-4" /> {customer.address}</div>}
+                {customer.notes && <div className="flex items-start gap-2"><FileText className="mt-0.5 size-4" /> <span>{customer.notes}</span></div>}
+                {!customer.phone && !customer.address && !customer.notes && <span className="opacity-80">প্রোফাইলে অতিরিক্ত তথ্য নেই</span>}
+              </div>
+            </div>
+          </div>
 
-      <Card>
-        <CardHeader><CardTitle className="flex items-center gap-2"><BookOpen className="size-4" /> সম্পূর্ণ লেনদেন</CardTitle></CardHeader>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl bg-primary-foreground/14 p-4 backdrop-blur">
+              <ReceiptText className="mb-3 size-5 opacity-90" />
+              <p className="text-xs font-medium opacity-80">মোট কেনাকাটা</p>
+              <div className="mt-1 text-2xl font-bold">{fmt(stats.totalPurchase)}</div>
+            </div>
+            <div className="rounded-2xl bg-primary-foreground/14 p-4 backdrop-blur">
+              <BadgeCheck className="mb-3 size-5 opacity-90" />
+              <p className="text-xs font-medium opacity-80">মোট পরিশোধ</p>
+              <div className="mt-1 text-2xl font-bold">{fmt(stats.totalPayments)}</div>
+            </div>
+            <div className="rounded-2xl bg-primary-foreground/90 p-4 text-primary shadow-card">
+              <Wallet className="mb-3 size-5" />
+              <p className="text-xs font-medium opacity-80">বর্তমান বাকি</p>
+              <div className={`mt-1 text-2xl font-bold ${stats.currentDue > 0 ? "text-destructive" : "text-success"}`}>{fmt(stats.currentDue)}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Card className="overflow-hidden border-primary/15 shadow-card">
+        <CardHeader className="bg-primary/5"><CardTitle className="flex items-center gap-2"><BookOpen className="size-4 text-primary" /> সম্পূর্ণ লেনদেন</CardTitle></CardHeader>
         <CardContent>
           {ledger.length === 0 ? (
             <p className="text-sm text-muted-foreground py-6 text-center">কোনো লেনদেন নেই</p>
