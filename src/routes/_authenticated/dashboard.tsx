@@ -181,7 +181,10 @@ function Dashboard() {
         </div>
       </div>
 
+      <FeatureSlider />
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+
         {kpis.map((k) => (
           <div key={k.label} className="rounded-2xl bg-card border border-border p-4 sm:p-5 shadow-card hover:shadow-elegant transition-shadow">
             <div className="flex items-center justify-between">
