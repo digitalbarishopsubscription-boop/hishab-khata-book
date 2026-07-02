@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Plus, Trash2, BookOpen, ArrowDownCircle, ArrowUpCircle } from "lucide-react";
+import { Loader2, Plus, Trash2, BookOpen, ArrowDownCircle, ArrowUpCircle, List } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
-} from "@/components/ui/dialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -42,10 +39,10 @@ const fmt = (n: number) => `৳ ${n.toLocaleString("bn-BD", { maximumFractionDig
 
 function KhataPage() {
   const { user } = useAuth();
+  const [tab, setTab] = useState<"entry" | "history">("entry");
   const [txns, setTxns] = useState<Txn[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -90,10 +87,7 @@ function KhataPage() {
     return Array.from(map.values()).filter((e) => e.balance !== 0).sort((a, b) => b.balance - a.balance);
   }, [txns]);
 
-  const openNew = () => {
-    setForm({ customer_id: "", customer_name: "", type: "due", amount: "", description: "" });
-    setOpen(true);
-  };
+  const resetForm = () => setForm({ customer_id: "", customer_name: "", type: "due", amount: "", description: "" });
 
   const onSave = async () => {
     if (!user) return;
@@ -115,7 +109,8 @@ function KhataPage() {
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success("যোগ হয়েছে");
-    setOpen(false);
+    resetForm();
+    setTab("history");
     load();
   };
 
@@ -129,21 +124,38 @@ function KhataPage() {
   };
 
   return (
-    <div className="p-4 lg:p-6 space-y-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-6">
+      <header className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-display">খাতা ও বাকি</h1>
-          <p className="text-sm text-muted-foreground">বাকি ও পরিশোধের হিসাব</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-display">খাতা ও বাকি</h1>
+          <p className="text-sm text-muted-foreground mt-1">বাকি ও পরিশোধের হিসাব</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={openNew}><Plus className="size-4" /> নতুন এন্ট্রি</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>খাতা এন্ট্রি</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-3">
+      </header>
+
+      <div className="inline-flex rounded-lg border bg-card p-1">
+        <button
+          onClick={() => setTab("entry")}
+          className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${
+            tab === "entry" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Plus className="inline size-4 mr-1" /> নতুন এন্ট্রি
+        </button>
+        <button
+          onClick={() => setTab("history")}
+          className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${
+            tab === "history" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <List className="inline size-4 mr-1" /> ইতিহাস
+        </button>
+      </div>
+
+      {tab === "entry" ? (
+        <Card>
+          <CardHeader><CardTitle>খাতা এন্ট্রি</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <Label>ধরন</Label>
                 <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v as "due" | "payment" })}>
@@ -165,98 +177,101 @@ function KhataPage() {
                 </Select>
               </div>
               {!form.customer_id && (
-                <div><Label>কাস্টমারের নাম</Label><Input value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} /></div>
+                <div className="md:col-span-2"><Label>কাস্টমারের নাম</Label><Input value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} /></div>
               )}
               <div><Label>পরিমাণ (৳)</Label><Input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} /></div>
-              <div><Label>বিবরণ</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+              <div className="md:col-span-2"><Label>বিবরণ</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setOpen(false)}>বাতিল</Button>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={resetForm}>রিসেট</Button>
               <Button onClick={onSave} disabled={saving}>
                 {saving && <Loader2 className="size-4 animate-spin" />} সংরক্ষণ
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="grid sm:grid-cols-3 gap-3">
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">মোট বাকি</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-display">{fmt(totals.due)}</CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">মোট পরিশোধ</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-display">{fmt(totals.paid)}</CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">নেট বাকি</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-display text-primary">{fmt(totals.balance)}</CardContent></Card>
-      </div>
-
-      {perCustomer.length > 0 && (
-        <Card>
-          <CardHeader><CardTitle>কাস্টমার অনুযায়ী বাকি</CardTitle></CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader><TableRow><TableHead>নাম</TableHead><TableHead className="text-right">বাকি</TableHead></TableRow></TableHeader>
-              <TableBody>
-                {perCustomer.map((p, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="font-medium">{p.name}</TableCell>
-                    <TableCell className={`text-right font-semibold ${p.balance > 0 ? "text-destructive" : "text-green-600"}`}>{fmt(p.balance)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            </div>
           </CardContent>
         </Card>
-      )}
+      ) : (
+        <>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">মোট বাকি</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-display">{fmt(totals.due)}</CardContent></Card>
+            <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">মোট পরিশোধ</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-display">{fmt(totals.paid)}</CardContent></Card>
+            <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">নেট বাকি</CardTitle></CardHeader><CardContent className="text-2xl font-bold text-display text-primary">{fmt(totals.balance)}</CardContent></Card>
+          </div>
 
-      <Card>
-        <CardHeader><CardTitle>সব লেনদেন</CardTitle></CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="grid place-items-center py-10"><Loader2 className="size-6 animate-spin text-primary" /></div>
-          ) : txns.length === 0 ? (
-            <div className="py-10 grid place-items-center text-center gap-3">
-              <BookOpen className="size-10 text-muted-foreground" />
-              <p className="text-muted-foreground">কোনো এন্ট্রি নেই</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>তারিখ</TableHead>
-                  <TableHead>কাস্টমার</TableHead>
-                  <TableHead>ধরন</TableHead>
-                  <TableHead className="text-right">পরিমাণ</TableHead>
-                  <TableHead>বিবরণ</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {txns.map((t) => (
-                  <TableRow key={t.id}>
-                    <TableCell className="text-xs text-muted-foreground">{new Date(t.transaction_date).toLocaleDateString("bn-BD")}</TableCell>
-                    <TableCell className="font-medium">
-                      {t.customer_id ? (
-                        <Link to="/customers/$id" params={{ id: t.customer_id }} className="hover:text-primary">{t.customer_name}</Link>
-                      ) : t.customer_name}
-                    </TableCell>
-                    <TableCell>
-                      {t.type === "due" ? (
-                        <span className="inline-flex items-center gap-1 text-destructive text-xs"><ArrowUpCircle className="size-3.5" /> বাকি</span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-green-600 text-xs"><ArrowDownCircle className="size-3.5" /> পরিশোধ</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right font-semibold">{fmt(Number(t.amount))}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{t.description}</TableCell>
-                    <TableCell>
-                      <Button size="icon" variant="ghost" onClick={() => setDeleteId(t.id)}>
-                        <Trash2 className="size-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          {perCustomer.length > 0 && (
+            <Card>
+              <CardHeader><CardTitle>কাস্টমার অনুযায়ী বাকি</CardTitle></CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader><TableRow><TableHead>নাম</TableHead><TableHead className="text-right">বাকি</TableHead></TableRow></TableHeader>
+                  <TableBody>
+                    {perCustomer.map((p, i) => (
+                      <TableRow key={i}>
+                        <TableCell className="font-medium">{p.name}</TableCell>
+                        <TableCell className={`text-right font-semibold ${p.balance > 0 ? "text-destructive" : "text-green-600"}`}>{fmt(p.balance)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           )}
-        </CardContent>
-      </Card>
+
+          <Card>
+            <CardHeader><CardTitle>সব লেনদেন</CardTitle></CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="grid place-items-center py-10"><Loader2 className="size-6 animate-spin text-primary" /></div>
+              ) : txns.length === 0 ? (
+                <div className="py-10 grid place-items-center text-center gap-3">
+                  <BookOpen className="size-10 text-muted-foreground" />
+                  <p className="text-muted-foreground">কোনো এন্ট্রি নেই</p>
+                  <Button onClick={() => setTab("entry")}><Plus className="size-4" /> নতুন এন্ট্রি</Button>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>তারিখ</TableHead>
+                      <TableHead>কাস্টমার</TableHead>
+                      <TableHead>ধরন</TableHead>
+                      <TableHead className="text-right">পরিমাণ</TableHead>
+                      <TableHead>বিবরণ</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {txns.map((t) => (
+                      <TableRow key={t.id}>
+                        <TableCell className="text-xs text-muted-foreground">{new Date(t.transaction_date).toLocaleDateString("bn-BD")}</TableCell>
+                        <TableCell className="font-medium">
+                          {t.customer_id ? (
+                            <Link to="/customers/$id" params={{ id: t.customer_id }} className="hover:text-primary">{t.customer_name}</Link>
+                          ) : t.customer_name}
+                        </TableCell>
+                        <TableCell>
+                          {t.type === "due" ? (
+                            <span className="inline-flex items-center gap-1 text-destructive text-xs"><ArrowUpCircle className="size-3.5" /> বাকি</span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-green-600 text-xs"><ArrowDownCircle className="size-3.5" /> পরিশোধ</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold">{fmt(Number(t.amount))}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{t.description}</TableCell>
+                        <TableCell>
+                          <Button size="icon" variant="ghost" onClick={() => setDeleteId(t.id)}>
+                            <Trash2 className="size-4 text-destructive" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <AlertDialogContent>
