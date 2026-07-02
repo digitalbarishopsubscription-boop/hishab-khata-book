@@ -94,6 +94,60 @@ export type Database = {
           },
         ]
       }
+      purchases: {
+        Row: {
+          created_at: string
+          due: number
+          id: string
+          item_name: string
+          notes: string | null
+          paid: number
+          payment_method: string
+          purchase_date: string
+          quantity: number
+          supplier_name: string
+          supplier_phone: string | null
+          total: number
+          unit_price: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          due?: number
+          id?: string
+          item_name: string
+          notes?: string | null
+          paid?: number
+          payment_method?: string
+          purchase_date?: string
+          quantity?: number
+          supplier_name: string
+          supplier_phone?: string | null
+          total?: number
+          unit_price?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          due?: number
+          id?: string
+          item_name?: string
+          notes?: string | null
+          paid?: number
+          payment_method?: string
+          purchase_date?: string
+          quantity?: number
+          supplier_name?: string
+          supplier_phone?: string | null
+          total?: number
+          unit_price?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sale_items: {
         Row: {
           created_at: string
