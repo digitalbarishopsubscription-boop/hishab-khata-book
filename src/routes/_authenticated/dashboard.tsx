@@ -3,10 +3,38 @@ import { useEffect, useState } from "react";
 import {
   TrendingUp, Wallet, AlertCircle, Package,
   Plus, Users, ShoppingCart, BookOpen, Receipt, Activity, Bot, Bell, Loader2,
+  ChevronLeft, ChevronRight, Store, LineChart, Smartphone, ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+
+const slides = [
+  {
+    icon: Store,
+    title: "ছোট ব্যবসার সহজ হিসাব",
+    desc: "দোকান, ক্যাফে বা ফ্রিল্যান্স — সব ধরনের ছোট ব্যবসার বিক্রয়, খরচ ও বাকি এক জায়গায়।",
+    gradient: "from-primary to-primary-glow",
+  },
+  {
+    icon: BookOpen,
+    title: "ডিজিটাল খাতা ও বাকি",
+    desc: "কাগজের খাতা ভুলে যান — কাস্টমার অনুযায়ী বাকি, পরিশোধ ও লেনদেন স্বয়ংক্রিয়ভাবে হিসাব হবে।",
+    gradient: "from-purple-600 to-pink-500",
+  },
+  {
+    icon: LineChart,
+    title: "রিয়েল-টাইম ইনসাইট",
+    desc: "দৈনিক ও মাসিক বিক্রয়, লাভ ও বাকি আদায়ের লাইভ চিত্র — ব্যবসার স্বাস্থ্য এক নজরে।",
+    gradient: "from-fuchsia-600 to-primary",
+  },
+  {
+    icon: ShieldCheck,
+    title: "নিরাপদ ও ক্লাউড ব্যাকআপ",
+    desc: "আপনার ডেটা সুরক্ষিত ক্লাউডে সংরক্ষিত — মোবাইল বা কম্পিউটার যেকোনো জায়গা থেকে অ্যাক্সেস।",
+    gradient: "from-primary to-fuchsia-500",
+  },
+];
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "ড্যাশবোর্ড — হিসাব" }] }),
