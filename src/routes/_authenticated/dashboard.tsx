@@ -262,3 +262,60 @@ function Dashboard() {
     </div>
   );
 }
+
+function FeatureSlider() {
+  const [i, setI] = useState(0);
+  const n = slides.length;
+  useEffect(() => {
+    const t = setInterval(() => setI((v) => (v + 1) % n), 4500);
+    return () => clearInterval(t);
+  }, [n]);
+  const s = slides[i];
+  const Icon = s.icon;
+  return (
+    <div className="relative rounded-2xl border border-border bg-card shadow-card overflow-hidden mb-6">
+      <div className={`relative bg-gradient-to-br ${s.gradient} p-5 sm:p-6 text-white transition-all duration-500`}>
+        <div className="absolute -right-8 -top-8 size-40 rounded-full bg-white/15 blur-2xl" />
+        <div className="absolute -left-6 -bottom-10 size-32 rounded-full bg-white/10 blur-2xl" />
+        <div className="relative flex items-center gap-4 sm:gap-5">
+          <div className="size-12 sm:size-14 shrink-0 rounded-2xl bg-white/20 backdrop-blur grid place-items-center">
+            <Icon className="size-6 sm:size-7" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-display text-base sm:text-lg font-bold leading-snug">{s.title}</h3>
+            <p className="text-xs sm:text-sm opacity-90 mt-1 leading-relaxed">{s.desc}</p>
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center justify-between px-4 py-2.5 bg-card">
+        <button
+          onClick={() => setI((v) => (v - 1 + n) % n)}
+          className="size-8 rounded-full grid place-items-center hover:bg-secondary text-muted-foreground hover:text-foreground transition"
+          aria-label="আগের"
+        >
+          <ChevronLeft className="size-4" />
+        </button>
+        <div className="flex items-center gap-1.5">
+          {slides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setI(idx)}
+              className={`h-1.5 rounded-full transition-all ${
+                idx === i ? "w-6 bg-primary" : "w-1.5 bg-border hover:bg-muted-foreground/40"
+              }`}
+              aria-label={`স্লাইড ${idx + 1}`}
+            />
+          ))}
+        </div>
+        <button
+          onClick={() => setI((v) => (v + 1) % n)}
+          className="size-8 rounded-full grid place-items-center hover:bg-secondary text-muted-foreground hover:text-foreground transition"
+          aria-label="পরের"
+        >
+          <ChevronRight className="size-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
