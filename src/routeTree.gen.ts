@@ -17,6 +17,7 @@ import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedPurchasesRouteImport } from './routes/_authenticated/purchases'
 import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
 import { Route as AuthenticatedKhataRouteImport } from './routes/_authenticated/khata'
+import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers.index'
@@ -62,6 +63,11 @@ const AuthenticatedKhataRoute = AuthenticatedKhataRouteImport.update({
   path: '/khata',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/customers': typeof AuthenticatedCustomersRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
   '/khata': typeof AuthenticatedKhataRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/purchases': typeof AuthenticatedPurchasesRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
   '/khata': typeof AuthenticatedKhataRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/purchases': typeof AuthenticatedPurchasesRoute
@@ -126,6 +134,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_authenticated/customers': typeof AuthenticatedCustomersRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/khata': typeof AuthenticatedKhataRoute
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/purchases': typeof AuthenticatedPurchasesRoute
@@ -142,6 +151,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/customers'
     | '/dashboard'
+    | '/inventory'
     | '/khata'
     | '/payments'
     | '/purchases'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/dashboard'
+    | '/inventory'
     | '/khata'
     | '/payments'
     | '/purchases'
@@ -170,6 +181,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_authenticated/customers'
     | '/_authenticated/dashboard'
+    | '/_authenticated/inventory'
     | '/_authenticated/khata'
     | '/_authenticated/payments'
     | '/_authenticated/purchases'
@@ -244,6 +256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedKhataRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/inventory': {
+      id: '/_authenticated/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AuthenticatedInventoryRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -312,6 +331,7 @@ const AuthenticatedSalesRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedKhataRoute: typeof AuthenticatedKhataRoute
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedPurchasesRoute: typeof AuthenticatedPurchasesRoute
@@ -321,6 +341,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCustomersRoute: AuthenticatedCustomersRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedKhataRoute: AuthenticatedKhataRoute,
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedPurchasesRoute: AuthenticatedPurchasesRoute,
