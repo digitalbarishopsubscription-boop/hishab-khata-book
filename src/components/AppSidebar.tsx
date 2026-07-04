@@ -38,7 +38,7 @@ const groups: { label: string; items: { title: string; url: string; icon: any }[
       { title: "নোটিফিকেশন", url: "/dashboard", icon: Bell },
       { title: "CEO কন্ট্রোল", url: "/dashboard", icon: Crown },
       { title: "রোল ও অনুমতি", url: "/dashboard", icon: Shield },
-      { title: "সেটিংস", url: "/dashboard", icon: Settings },
+      { title: "সেটিংস", url: "/settings", icon: Settings },
     ],
   },
 ];

@@ -13,6 +13,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedPurchasesRouteImport } from './routes/_authenticated/purchases'
 import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
@@ -42,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
   id: '/sales',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/payments': typeof AuthenticatedPaymentsRoute
   '/purchases': typeof AuthenticatedPurchasesRoute
   '/sales': typeof AuthenticatedSalesRouteWithChildren
+  '/settings': typeof AuthenticatedSettingsRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/sales/$id/invoice': typeof AuthenticatedSalesIdInvoiceRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/payments': typeof AuthenticatedPaymentsRoute
   '/purchases': typeof AuthenticatedPurchasesRoute
   '/sales': typeof AuthenticatedSalesRouteWithChildren
+  '/settings': typeof AuthenticatedSettingsRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/sales/$id/invoice': typeof AuthenticatedSalesIdInvoiceRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/purchases': typeof AuthenticatedPurchasesRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRouteWithChildren
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/sales/$id/invoice': typeof AuthenticatedSalesIdInvoiceRoute
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
     | '/payments'
     | '/purchases'
     | '/sales'
+    | '/settings'
     | '/customers/$id'
     | '/customers/'
     | '/sales/$id/invoice'
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/payments'
     | '/purchases'
     | '/sales'
+    | '/settings'
     | '/customers/$id'
     | '/customers'
     | '/sales/$id/invoice'
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/_authenticated/payments'
     | '/_authenticated/purchases'
     | '/_authenticated/sales'
+    | '/_authenticated/settings'
     | '/_authenticated/customers/$id'
     | '/_authenticated/customers/'
     | '/_authenticated/sales/$id/invoice'
@@ -227,6 +239,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/sales': {
       id: '/_authenticated/sales'
@@ -336,6 +355,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedPurchasesRoute: typeof AuthenticatedPurchasesRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRouteWithChildren
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -346,6 +366,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedPurchasesRoute: AuthenticatedPurchasesRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRouteWithChildren,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
