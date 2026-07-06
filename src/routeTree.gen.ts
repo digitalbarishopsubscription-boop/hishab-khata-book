@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
+import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
 import { Route as AuthenticatedPurchasesRouteImport } from './routes/_authenticated/purchases'
 import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
 import { Route as AuthenticatedKhataRouteImport } from './routes/_authenticated/khata'
@@ -54,6 +55,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
 const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
   id: '/sales',
   path: '/sales',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedRolesRoute = AuthenticatedRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedPurchasesRoute = AuthenticatedPurchasesRouteImport.update({
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/khata': typeof AuthenticatedKhataRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/purchases': typeof AuthenticatedPurchasesRoute
+  '/roles': typeof AuthenticatedRolesRoute
   '/sales': typeof AuthenticatedSalesRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
@@ -144,6 +151,7 @@ export interface FileRoutesByTo {
   '/khata': typeof AuthenticatedKhataRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/purchases': typeof AuthenticatedPurchasesRoute
+  '/roles': typeof AuthenticatedRolesRoute
   '/sales': typeof AuthenticatedSalesRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
@@ -164,6 +172,7 @@ export interface FileRoutesById {
   '/_authenticated/khata': typeof AuthenticatedKhataRoute
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/purchases': typeof AuthenticatedPurchasesRoute
+  '/_authenticated/roles': typeof AuthenticatedRolesRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRoute
@@ -184,6 +193,7 @@ export interface FileRouteTypes {
     | '/khata'
     | '/payments'
     | '/purchases'
+    | '/roles'
     | '/sales'
     | '/settings'
     | '/customers/$id'
@@ -201,6 +211,7 @@ export interface FileRouteTypes {
     | '/khata'
     | '/payments'
     | '/purchases'
+    | '/roles'
     | '/sales'
     | '/settings'
     | '/customers/$id'
@@ -220,6 +231,7 @@ export interface FileRouteTypes {
     | '/_authenticated/khata'
     | '/_authenticated/payments'
     | '/_authenticated/purchases'
+    | '/_authenticated/roles'
     | '/_authenticated/sales'
     | '/_authenticated/settings'
     | '/_authenticated/customers/$id'
@@ -276,6 +288,13 @@ declare module '@tanstack/react-router' {
       path: '/sales'
       fullPath: '/sales'
       preLoaderRoute: typeof AuthenticatedSalesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/roles': {
+      id: '/_authenticated/roles'
+      path: '/roles'
+      fullPath: '/roles'
+      preLoaderRoute: typeof AuthenticatedRolesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/purchases': {
@@ -394,6 +413,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedKhataRoute: typeof AuthenticatedKhataRoute
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedPurchasesRoute: typeof AuthenticatedPurchasesRoute
+  AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
@@ -407,6 +427,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedKhataRoute: AuthenticatedKhataRoute,
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedPurchasesRoute: AuthenticatedPurchasesRoute,
+  AuthenticatedRolesRoute: AuthenticatedRolesRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
