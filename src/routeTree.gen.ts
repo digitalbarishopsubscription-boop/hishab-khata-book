@@ -13,6 +13,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedSuppliersRouteImport } from './routes/_authenticated/suppliers'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
@@ -46,6 +47,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSuppliersRoute = AuthenticatedSuppliersRouteImport.update({
+  id: '/suppliers',
+  path: '/suppliers',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/roles': typeof AuthenticatedRolesRoute
   '/sales': typeof AuthenticatedSalesRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
+  '/suppliers': typeof AuthenticatedSuppliersRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/sales/$id/invoice': typeof AuthenticatedSalesIdInvoiceRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/roles': typeof AuthenticatedRolesRoute
   '/sales': typeof AuthenticatedSalesRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
+  '/suppliers': typeof AuthenticatedSuppliersRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/sales/$id/invoice': typeof AuthenticatedSalesIdInvoiceRoute
@@ -175,6 +183,7 @@ export interface FileRoutesById {
   '/_authenticated/roles': typeof AuthenticatedRolesRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/suppliers': typeof AuthenticatedSuppliersRoute
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/sales/$id/invoice': typeof AuthenticatedSalesIdInvoiceRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/roles'
     | '/sales'
     | '/settings'
+    | '/suppliers'
     | '/customers/$id'
     | '/customers/'
     | '/sales/$id/invoice'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | '/roles'
     | '/sales'
     | '/settings'
+    | '/suppliers'
     | '/customers/$id'
     | '/customers'
     | '/sales/$id/invoice'
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | '/_authenticated/roles'
     | '/_authenticated/sales'
     | '/_authenticated/settings'
+    | '/_authenticated/suppliers'
     | '/_authenticated/customers/$id'
     | '/_authenticated/customers/'
     | '/_authenticated/sales/$id/invoice'
@@ -275,6 +287,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/suppliers': {
+      id: '/_authenticated/suppliers'
+      path: '/suppliers'
+      fullPath: '/suppliers'
+      preLoaderRoute: typeof AuthenticatedSuppliersRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
@@ -416,6 +435,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSuppliersRoute: typeof AuthenticatedSuppliersRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -430,6 +450,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedRolesRoute: AuthenticatedRolesRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSuppliersRoute: AuthenticatedSuppliersRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -445,13 +466,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
