@@ -4,8 +4,7 @@ import { Bot, Send, Loader2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { aiChat } from "@/lib/api/ai-chat.functions";
 
 export const Route = createFileRoute("/_authenticated/ai-assistant")({
   head: () => ({ meta: [{ title: "এআই সহকারী — হিসাব" }] }),
@@ -37,17 +36,16 @@ function AiPage() {
     setInput("");
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("ai-chat", {
-        body: { messages: next },
-      });
-      if (error) throw error;
-      const reply = (data as any)?.reply ?? "দুঃখিত, উত্তর দিতে পারলাম না।";
+      const { reply } = await aiChat({ data: { messages: next } });
       setMessages((m) => [...m, { role: "assistant", content: reply }]);
     } catch (e: any) {
-      // Graceful fallback if AI edge function not deployed
       setMessages((m) => [...m, {
         role: "assistant",
-        content: "এআই সেবা এখন উপলব্ধ নয়। শীঘ্রই ফিরে আসুন। ইতিমধ্যে ড্যাশবোর্ড ও রিপোর্ট থেকে ব্যবসার তথ্য দেখুন।",
+        content: e?.message?.includes("credits_exhausted")
+          ? "এআই ক্রেডিট শেষ। কর্মক্ষেত্রে ক্রেডিট যোগ করুন।"
+          : e?.message?.includes("rate_limited")
+          ? "অনেক অনুরোধ! একটু পর আবার চেষ্টা করুন।"
+          : "এআই সেবায় সমস্যা হচ্ছে। আবার চেষ্টা করুন।",
       }]);
     } finally {
       setLoading(false);
