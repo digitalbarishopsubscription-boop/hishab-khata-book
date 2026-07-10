@@ -79,7 +79,7 @@ function AiPage() {
     }
   };
 
-  const setActionStatus = (msgIdx: number, actionId: string, s: Msg["actionStatus"][string]) => {
+  const setActionStatus = (msgIdx: number, actionId: string, s: "pending" | "approved" | "rejected" | "running") => {
     setMessages((m) =>
       m.map((msg, i) =>
         i === msgIdx
