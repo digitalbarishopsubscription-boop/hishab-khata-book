@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "লগইন — হিসাব" }] }),
+  head: () => ({ meta: [{ title: "লগইন — হিসাব পত্র" }] }),
   component: LoginPage,
 });
 
@@ -65,9 +65,13 @@ function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-sidebar via-sidebar to-primary-glow/30" />
         <div className="absolute -top-24 -right-24 size-96 rounded-full bg-gold/20 blur-3xl" />
         <div className="absolute -bottom-32 -left-16 size-96 rounded-full bg-primary-glow/30 blur-3xl" />
-        <Link to="/" className="relative flex items-center gap-2">
-          <div className="size-10 rounded-xl bg-gold grid place-items-center text-gold-foreground font-bold text-display">হি</div>
-          <span className="font-bold text-xl text-display">হিসাব</span>
+        <Link to="/" className="relative flex items-center gap-2.5">
+          <img
+            src="/logo.png"
+            alt="হিসাব পত্র"
+            className="h-10 w-auto rounded-lg bg-white p-0.5 shadow-sm"
+          />
+          <span className="font-bold text-xl text-display">হিসাব পত্র</span>
         </Link>
         <div className="relative">
           <h2 className="text-display text-4xl font-bold leading-tight">
@@ -78,15 +82,19 @@ function LoginPage() {
             আজকের বিক্রয়, বাকি, ইনভেন্টরি — সব এক জায়গায় দেখুন এবং এআই সহকারীর সাহায্যে সঠিক সিদ্ধান্ত নিন।
           </p>
         </div>
-        <div className="relative text-xs text-sidebar-foreground/50">© {new Date().getFullYear()} হিসাব</div>
+        <div className="relative text-xs text-sidebar-foreground/50">© {new Date().getFullYear()} হিসাব পত্র</div>
       </div>
 
       {/* Form */}
       <div className="flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-sm">
-          <Link to="/" className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="size-9 rounded-xl bg-gradient-primary grid place-items-center text-primary-foreground font-bold text-display">হি</div>
-            <span className="font-bold text-lg text-display">হিসাব</span>
+          <Link to="/" className="lg:hidden flex items-center gap-2.5 mb-8">
+            <img
+              src="/logo.png"
+              alt="হিসাব পত্র"
+              className="h-9 w-auto rounded-lg bg-white p-0.5 shadow-sm"
+            />
+            <span className="font-bold text-lg text-display">হিসাব পত্র</span>
           </Link>
           <h1 className="text-display text-3xl font-bold text-foreground">লগইন করুন</h1>
           <p className="mt-2 text-sm text-muted-foreground">আপনার মালিক অ্যাকাউন্টে প্রবেশ করুন</p>

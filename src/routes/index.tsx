@@ -8,7 +8,7 @@ import { TrendingUp, Wallet, Users, BookOpen, Bot, ShieldCheck } from "lucide-re
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "হিসাব — বাংলায় সম্পূর্ণ ব্যবসা ব্যবস্থাপনা" },
+      { title: "হিসাব পত্র — বাংলায় সম্পূর্ণ ব্যবসা ব্যবস্থাপনা" },
       { name: "description", content: "খাতা, বিক্রয়, ইনভেন্টরি, এআই — এক অ্যাপেই আপনার পুরো ব্যবসা।" },
     ],
   }),
@@ -28,9 +28,13 @@ function Landing() {
       {/* Nav */}
       <header className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-0 z-40">
         <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="size-9 rounded-xl bg-gradient-primary grid place-items-center text-primary-foreground font-bold text-display">হি</div>
-            <span className="font-bold text-lg text-display">হিসাব</span>
+          <Link to="/" className="flex items-center gap-2.5">
+            <img
+              src="/logo.png"
+              alt="হিসাব পত্র"
+              className="h-9 w-auto rounded-lg bg-white p-0.5 shadow-sm"
+            />
+            <span className="font-bold text-lg text-display">হিসাব পত্র</span>
           </Link>
           <div className="flex items-center gap-2">
             <Button variant="ghost" asChild><Link to="/login">লগইন</Link></Button>
@@ -87,7 +91,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border/60 py-6 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} হিসাব। সকল অধিকার সংরক্ষিত।
+        © {new Date().getFullYear()} হিসাব পত্র। সকল অধিকার সংরক্ষিত।
       </footer>
     </div>
   );

@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/ceo")({
-  head: () => ({ meta: [{ title: "CEO কন্ট্রোল — হিসাব" }] }),
+  head: () => ({ meta: [{ title: "CEO কন্ট্রোল — হিসাব পত্র" }] }),
   component: CeoPage,
 });
 

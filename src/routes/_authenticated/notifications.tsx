@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
-  head: () => ({ meta: [{ title: "নোটিফিকেশন — হিসাব" }] }),
+  head: () => ({ meta: [{ title: "নোটিফিকেশন — হিসাব পত্র" }] }),
   component: NotificationsPage,
 });
 

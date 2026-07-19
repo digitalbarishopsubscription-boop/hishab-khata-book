@@ -8,7 +8,7 @@ import { aiChat, executeAiAction, type PendingAction } from "@/lib/api/ai-chat.f
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/ai-assistant")({
-  head: () => ({ meta: [{ title: "এআই সহকারী — হিসাব" }] }),
+  head: () => ({ meta: [{ title: "এআই সহকারী — হিসাব পত্র" }] }),
   component: AiPage,
 });
 

@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/finance")({
-  head: () => ({ meta: [{ title: "আর্থিক — হিসাব" }] }),
+  head: () => ({ meta: [{ title: "আর্থিক — হিসাব পত্র" }] }),
   component: FinancePage,
 });
 

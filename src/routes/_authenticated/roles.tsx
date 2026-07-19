@@ -16,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/roles")({
-  head: () => ({ meta: [{ title: "রোল ও অনুমতি — হিসাব" }] }),
+  head: () => ({ meta: [{ title: "রোল ও অনুমতি — হিসাব পত্র" }] }),
   component: RolesPage,
 });
 

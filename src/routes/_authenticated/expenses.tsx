@@ -16,7 +16,7 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/expenses")({
-  head: () => ({ meta: [{ title: "খরচ — হিসাব" }] }),
+  head: () => ({ meta: [{ title: "খরচ — হিসাব পত্র" }] }),
   component: ExpensesPage,
 });
 
