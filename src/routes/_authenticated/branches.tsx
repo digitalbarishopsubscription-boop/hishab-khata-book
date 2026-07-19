@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/branches")({
-  head: () => ({ meta: [{ title: "ব্রাঞ্চ — হিসাব" }] }),
+  head: () => ({ meta: [{ title: "ব্রাঞ্চ — হিসাব পত্র" }] }),
   component: BranchesPage,
 });
 

@@ -37,7 +37,7 @@ const slides = [
 ];
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "ড্যাশবোর্ড — হিসাব" }] }),
+  head: () => ({ meta: [{ title: "ড্যাশবোর্ড — হিসাব পত্র" }] }),
   component: Dashboard,
 });
 

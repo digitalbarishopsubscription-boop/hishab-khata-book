@@ -50,10 +50,14 @@ export function AppSidebar() {
   return (
     <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border h-screen sticky top-0">
       <div className="p-5 border-b border-sidebar-border">
-        <Link to="/dashboard" className="flex items-center gap-2">
-          <div className="size-9 rounded-xl bg-gold grid place-items-center text-gold-foreground font-bold text-display">হি</div>
+        <Link to="/dashboard" className="flex items-center gap-2.5">
+          <img
+            src="/logo.png"
+            alt="হিসাব পত্র"
+            className="h-10 w-auto rounded-lg bg-white p-0.5 shadow-sm"
+          />
           <div>
-            <div className="font-bold text-display leading-none">হিসাব</div>
+            <div className="font-bold text-display leading-none">হিসাব পত্র</div>
             <div className="text-[10px] text-sidebar-foreground/60 mt-0.5">ব্যবসা ব্যবস্থাপনা</div>
           </div>
         </Link>

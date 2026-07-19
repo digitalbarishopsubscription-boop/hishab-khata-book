@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/signup")({
-  head: () => ({ meta: [{ title: "সাইনআপ — হিসাব" }] }),
+  head: () => ({ meta: [{ title: "সাইনআপ — হিসাব পত্র" }] }),
   component: SignupPage,
 });
 
@@ -75,9 +75,13 @@ function SignupPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-sidebar via-sidebar to-primary-glow/30" />
         <div className="absolute -top-24 -right-24 size-96 rounded-full bg-gold/20 blur-3xl" />
         <div className="absolute -bottom-32 -left-16 size-96 rounded-full bg-primary-glow/30 blur-3xl" />
-        <Link to="/" className="relative flex items-center gap-2">
-          <div className="size-10 rounded-xl bg-gold grid place-items-center text-gold-foreground font-bold text-display">হি</div>
-          <span className="font-bold text-xl text-display">হিসাব</span>
+        <Link to="/" className="relative flex items-center gap-2.5">
+          <img
+            src="/logo.png"
+            alt="হিসাব পত্র"
+            className="h-10 w-auto rounded-lg bg-white p-0.5 shadow-sm"
+          />
+          <span className="font-bold text-xl text-display">হিসাব পত্র</span>
         </Link>
         <div className="relative">
           <h2 className="text-display text-4xl font-bold leading-tight">
@@ -93,14 +97,18 @@ function SignupPage() {
             <li className="flex gap-2"><span className="text-gold">✓</span> ক্লাউড সিঙ্ক ও অটো ব্যাকআপ</li>
           </ul>
         </div>
-        <div className="relative text-xs text-sidebar-foreground/50">© {new Date().getFullYear()} হিসাব</div>
+        <div className="relative text-xs text-sidebar-foreground/50">© {new Date().getFullYear()} হিসাব পত্র</div>
       </div>
 
       <div className="flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-sm">
-          <Link to="/" className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="size-9 rounded-xl bg-gradient-primary grid place-items-center text-primary-foreground font-bold text-display">হি</div>
-            <span className="font-bold text-lg text-display">হিসাব</span>
+          <Link to="/" className="lg:hidden flex items-center gap-2.5 mb-8">
+            <img
+              src="/logo.png"
+              alt="হিসাব পত্র"
+              className="h-9 w-auto rounded-lg bg-white p-0.5 shadow-sm"
+            />
+            <span className="font-bold text-lg text-display">হিসাব পত্র</span>
           </Link>
           <h1 className="text-display text-3xl font-bold text-foreground">মালিক অ্যাকাউন্ট তৈরি করুন</h1>
           <p className="mt-2 text-sm text-muted-foreground">কয়েক সেকেন্ডে আপনার ব্যবসা সেটআপ করুন</p>

@@ -17,7 +17,7 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/inventory")({
-  head: () => ({ meta: [{ title: "ইনভেন্টরি — হিসাব" }] }),
+  head: () => ({ meta: [{ title: "ইনভেন্টরি — হিসাব পত্র" }] }),
   component: InventoryPage,
 });
 

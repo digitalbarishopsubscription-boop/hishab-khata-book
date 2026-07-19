@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/_authenticated/sales/$id/invoice")({
-  head: () => ({ meta: [{ title: "ইনভয়েস — হিসাব" }] }),
+  head: () => ({ meta: [{ title: "ইনভয়েস — হিসাব পত্র" }] }),
   component: InvoicePage,
 });
 
@@ -59,7 +59,7 @@ function InvoicePage() {
     return <div className="p-6 text-center text-muted-foreground">ইনভয়েস পাওয়া যায়নি</div>;
   }
 
-  const ownerName = (user?.user_metadata?.owner_name as string) || "হিসাব";
+  const ownerName = (user?.user_metadata?.owner_name as string) || "হিসাব পত্র";
 
   return (
     <div className="p-4 md:p-6 max-w-3xl mx-auto">
@@ -74,9 +74,16 @@ function InvoicePage() {
 
       <div className="bg-card border rounded-2xl shadow-card p-6 md:p-10 print:shadow-none print:border-0">
         <div className="flex items-start justify-between gap-4 pb-6 border-b">
-          <div>
-            <div className="text-3xl font-bold text-display bg-gradient-primary bg-clip-text text-transparent">হিসাব</div>
-            <div className="text-sm text-muted-foreground mt-1">{ownerName}</div>
+          <div className="flex items-center gap-3">
+            <img
+              src="/logo.png"
+              alt="হিসাব পত্র"
+              className="h-12 w-auto rounded-lg bg-white p-0.5 shadow-sm"
+            />
+            <div>
+              <div className="text-xl font-bold text-display text-foreground">হিসাব পত্র</div>
+              <div className="text-sm text-muted-foreground">{ownerName}</div>
+            </div>
           </div>
           <div className="text-right">
             <div className="text-xs uppercase tracking-wider text-muted-foreground">ইনভয়েস</div>
@@ -138,7 +145,7 @@ function InvoicePage() {
         )}
 
         <div className="mt-10 pt-6 border-t text-center text-xs text-muted-foreground">
-          ধন্যবাদ আপনার ব্যবসার জন্য — হিসাব দিয়ে তৈরি
+          ধন্যবাদ আপনার ব্যবসার জন্য — হিসাব পত্র দিয়ে তৈরি
         </div>
       </div>
     </div>

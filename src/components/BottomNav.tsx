@@ -84,7 +84,14 @@ export function BottomNav() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[85vw] sm:w-96 overflow-y-auto">
               <SheetHeader>
-                <SheetTitle>মেনু</SheetTitle>
+                <SheetTitle className="flex items-center gap-2.5">
+                  <img
+                    src="/logo.png"
+                    alt="হিসাব পত্র"
+                    className="h-8 w-auto rounded-lg bg-white p-0.5 shadow-sm"
+                  />
+                  <span className="text-display">হিসাব পত্র</span>
+                </SheetTitle>
               </SheetHeader>
               <div className="mt-4 space-y-5">
                 {moreGroups.map((g) => (
