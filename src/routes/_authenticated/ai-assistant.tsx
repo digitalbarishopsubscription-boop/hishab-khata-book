@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Bot, Send, Loader2, User, Check, X, ShieldCheck } from "lucide-react";
+import { Bot, Send, Loader2, User, Check, X, ShieldCheck, Mic, Square, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { aiChat, executeAiAction, type PendingAction } from "@/lib/api/ai-chat.functions";
+import { aiChat, executeAiAction, transcribeAudio, type PendingAction } from "@/lib/api/ai-chat.functions";
+import { startRecording, blobToBase64, fileToDataUrl, type VoiceRecorder } from "@/lib/audio-recorder";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_authenticated/ai-assistant")({
   head: () => ({ meta: [{ title: "এআই সহকারী — হিসাব পত্র" }] }),
