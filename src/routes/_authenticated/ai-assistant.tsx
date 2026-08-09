@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Bot, Send, Loader2, User, Check, X, ShieldCheck } from "lucide-react";
+import { Bot, Send, Loader2, User, Check, X, ShieldCheck, Mic, Square, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { aiChat, executeAiAction, type PendingAction } from "@/lib/api/ai-chat.functions";
+import { aiChat, executeAiAction, transcribeAudio, type PendingAction } from "@/lib/api/ai-chat.functions";
+import { startRecording, blobToBase64, fileToDataUrl, type VoiceRecorder } from "@/lib/audio-recorder";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_authenticated/ai-assistant")({
   head: () => ({ meta: [{ title: "এআই সহকারী — হিসাব পত্র" }] }),
@@ -15,9 +17,11 @@ export const Route = createFileRoute("/_authenticated/ai-assistant")({
 type Msg = {
   role: "user" | "assistant";
   content: string;
+  images?: string[];
   actions?: PendingAction[];
   actionStatus?: Record<string, "pending" | "approved" | "rejected" | "running">;
 };
+
 
 const SUGGESTIONS = [
   "এই মাসের বিক্রয়, খরচ ও লাভ দেখাও",
@@ -41,25 +45,90 @@ function AiPage() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [recording, setRecording] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const recorderRef = useRef<VoiceRecorder | null>(null);
 
   const scrollDown = () =>
     setTimeout(() => scrollRef.current?.scrollTo({ top: 99999, behavior: "smooth" }), 50);
 
+  const pickImages = async (files: FileList | null) => {
+    if (!files?.length) return;
+    const picked: string[] = [];
+    for (const file of Array.from(files).slice(0, 4)) {
+      if (!file.type.startsWith("image/")) {
+        toast.error("শুধু ছবি ফাইল যোগ করা যাবে");
+        continue;
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        toast.error("ছবিটি অনেক বড় (সর্বোচ্চ ৮MB)");
+        continue;
+      }
+      picked.push(await fileToDataUrl(file));
+    }
+    if (picked.length) setAttachments((a) => [...a, ...picked].slice(0, 4));
+  };
+
+  const toggleRecording = async () => {
+    if (recording) {
+      setRecording(false);
+      setTranscribing(true);
+      try {
+        const rec = recorderRef.current;
+        recorderRef.current = null;
+        const blob = await rec!.stop();
+        const audioBase64 = await blobToBase64(blob);
+        const { text } = await transcribeAudio({ data: { audioBase64, mimeType: "audio/wav" } });
+        if (text.trim()) setInput((v) => (v ? `${v} ${text.trim()}` : text.trim()));
+        else toast.error("কিছু শোনা যায়নি — আবার চেষ্টা করুন");
+      } catch (e: any) {
+        toast.error(e?.message?.includes("credits_exhausted") ? "এআই ক্রেডিট শেষ।" : "ভয়েস রূপান্তর ব্যর্থ হয়েছে");
+      } finally {
+        setTranscribing(false);
+      }
+      return;
+    }
+    try {
+      recorderRef.current = await startRecording();
+      setRecording(true);
+    } catch {
+      toast.error("মাইক্রোফোন অনুমতি প্রয়োজন");
+    }
+  };
+
   const send = async (text?: string) => {
     const q = (text ?? input).trim();
-    if (!q || loading) return;
-    const outgoing: Msg = { role: "user", content: q };
+    const imgs = text ? [] : attachments;
+    if ((!q && imgs.length === 0) || loading) return;
+    const outgoing: Msg = { role: "user", content: q, images: imgs };
     const next = [...messages, outgoing];
     setMessages(next);
     setInput("");
+    setAttachments([]);
     setLoading(true);
+    scrollDown();
     try {
       const { reply, pendingActions } = await aiChat({
-        data: { messages: next.map((m) => ({ role: m.role, content: m.content })) },
+        data: {
+          messages: next.map((m) =>
+            m.images?.length
+              ? {
+                  role: m.role,
+                  content: [
+                    { type: "text", text: m.content || "এই ছবিটি দেখে সাহায্য করুন।" },
+                    ...m.images.map((url) => ({ type: "image_url", image_url: { url } })),
+                  ],
+                }
+              : { role: m.role, content: m.content },
+          ),
+        },
       });
       const status: Record<string, "pending"> = {};
       (pendingActions ?? []).forEach((a) => (status[a.id] = "pending"));
+
       setMessages((m) => [
         ...m,
         { role: "assistant", content: reply, actions: pendingActions, actionStatus: status },
@@ -129,6 +198,14 @@ function AiPage() {
                 {m.role === "user" ? <User className="size-4" /> : <Bot className="size-4" />}
               </div>
               <div className="max-w-[85%] space-y-2">
+                {!!m.images?.length && (
+                  <div className={`flex flex-wrap gap-2 ${m.role === "user" ? "justify-end" : ""}`}>
+                    {m.images.map((src, k) => (
+                      <img key={k} src={src} alt="সংযুক্ত ছবি" className="size-28 rounded-xl object-cover border" />
+                    ))}
+                  </div>
+                )}
+
                 {m.content && (
                   <div className={`rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${
                     m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
@@ -192,18 +269,67 @@ function AiPage() {
           </div>
         )}
 
+        {attachments.length > 0 && (
+          <div className="px-3 pt-3 flex flex-wrap gap-2">
+            {attachments.map((src, k) => (
+              <div key={k} className="relative">
+                <img src={src} alt="সংযুক্ত ছবি" className="size-16 rounded-lg object-cover border" />
+                <button
+                  onClick={() => setAttachments((a) => a.filter((_, idx) => idx !== k))}
+                  className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-destructive text-destructive-foreground grid place-items-center"
+                  aria-label="ছবি সরান"
+                >
+                  <X className="size-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="p-3 border-t flex gap-2">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              void pickImages(e.target.files);
+              e.target.value = "";
+            }}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => fileRef.current?.click()}
+            disabled={loading}
+            aria-label="ছবি যোগ করুন"
+          >
+            <ImagePlus className="size-4" />
+          </Button>
+          <Button
+            type="button"
+            variant={recording ? "destructive" : "outline"}
+            size="icon"
+            onClick={() => void toggleRecording()}
+            disabled={loading || transcribing}
+            aria-label={recording ? "রেকর্ডিং বন্ধ করুন" : "ভয়েস রেকর্ড করুন"}
+          >
+            {transcribing ? <Loader2 className="size-4 animate-spin" /> : recording ? <Square className="size-4" /> : <Mic className="size-4" />}
+          </Button>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && send()}
-            placeholder="যেমন: আজকের বিক্রয় কত? / ৩০০ টাকা যাতায়াত খরচ যোগ করো"
+            placeholder={recording ? "রেকর্ড হচ্ছে… শেষ হলে বন্ধ করুন" : "যেমন: আজকের বিক্রয় কত? / ৩০০ টাকা যাতায়াত খরচ যোগ করো"}
             disabled={loading}
           />
-          <Button onClick={() => send()} disabled={loading || !input.trim()}>
+          <Button onClick={() => send()} disabled={loading || (!input.trim() && attachments.length === 0)}>
             <Send className="size-4" />
           </Button>
         </div>
+
       </Card>
     </div>
   );

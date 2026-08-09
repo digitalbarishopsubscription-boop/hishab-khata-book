@@ -5,11 +5,12 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 // ---------- Types ----------
 const MessageSchema = z.object({
   role: z.enum(["user", "assistant", "system", "tool"]),
-  content: z.string(),
+  content: z.union([z.string(), z.array(z.any())]),
   tool_call_id: z.string().optional(),
   name: z.string().optional(),
   tool_calls: z.any().optional(),
 });
+
 
 const InputSchema = z.object({
   messages: z.array(MessageSchema).min(1),
@@ -405,4 +406,43 @@ export const executeAiAction = createServerFn({ method: "POST" })
       }
     }
     throw new Error("অজানা অ্যাকশন");
+  });
+
+// ---------- Voice: speech to text ----------
+const TranscribeInput = z.object({
+  audioBase64: z.string().min(1),
+  mimeType: z.string().default("audio/wav"),
+});
+
+export const transcribeAudio = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => TranscribeInput.parse(input))
+  .handler(async ({ data }) => {
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("Missing LOVABLE_API_KEY");
+
+    const bin = Uint8Array.from(atob(data.audioBase64), (c) => c.charCodeAt(0));
+    if (bin.byteLength < 2048) throw new Error("রেকর্ডিং খালি — আবার চেষ্টা করুন।");
+
+    const ext = data.mimeType.includes("mp4") ? "mp4"
+      : data.mimeType.includes("mpeg") ? "mp3"
+      : data.mimeType.includes("webm") ? "webm" : "wav";
+
+    const form = new FormData();
+    form.append("model", "openai/gpt-4o-transcribe");
+    form.append("file", new Blob([bin], { type: data.mimeType }), `recording.${ext}`);
+
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}` },
+      body: form,
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      if (res.status === 429) throw new Error("rate_limited: একটু পর আবার চেষ্টা করুন।");
+      if (res.status === 402) throw new Error("credits_exhausted: এআই ক্রেডিট শেষ।");
+      throw new Error(`Transcription failed ${res.status}: ${text}`);
+    }
+    const json = (await res.json()) as { text?: string };
+    return { text: json.text ?? "" };
   });
