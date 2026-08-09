@@ -45,25 +45,90 @@ function AiPage() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [recording, setRecording] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const recorderRef = useRef<VoiceRecorder | null>(null);
 
   const scrollDown = () =>
     setTimeout(() => scrollRef.current?.scrollTo({ top: 99999, behavior: "smooth" }), 50);
 
+  const pickImages = async (files: FileList | null) => {
+    if (!files?.length) return;
+    const picked: string[] = [];
+    for (const file of Array.from(files).slice(0, 4)) {
+      if (!file.type.startsWith("image/")) {
+        toast.error("শুধু ছবি ফাইল যোগ করা যাবে");
+        continue;
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        toast.error("ছবিটি অনেক বড় (সর্বোচ্চ ৮MB)");
+        continue;
+      }
+      picked.push(await fileToDataUrl(file));
+    }
+    if (picked.length) setAttachments((a) => [...a, ...picked].slice(0, 4));
+  };
+
+  const toggleRecording = async () => {
+    if (recording) {
+      setRecording(false);
+      setTranscribing(true);
+      try {
+        const rec = recorderRef.current;
+        recorderRef.current = null;
+        const blob = await rec!.stop();
+        const audioBase64 = await blobToBase64(blob);
+        const { text } = await transcribeAudio({ data: { audioBase64, mimeType: "audio/wav" } });
+        if (text.trim()) setInput((v) => (v ? `${v} ${text.trim()}` : text.trim()));
+        else toast.error("কিছু শোনা যায়নি — আবার চেষ্টা করুন");
+      } catch (e: any) {
+        toast.error(e?.message?.includes("credits_exhausted") ? "এআই ক্রেডিট শেষ।" : "ভয়েস রূপান্তর ব্যর্থ হয়েছে");
+      } finally {
+        setTranscribing(false);
+      }
+      return;
+    }
+    try {
+      recorderRef.current = await startRecording();
+      setRecording(true);
+    } catch {
+      toast.error("মাইক্রোফোন অনুমতি প্রয়োজন");
+    }
+  };
+
   const send = async (text?: string) => {
     const q = (text ?? input).trim();
-    if (!q || loading) return;
-    const outgoing: Msg = { role: "user", content: q };
+    const imgs = text ? [] : attachments;
+    if ((!q && imgs.length === 0) || loading) return;
+    const outgoing: Msg = { role: "user", content: q, images: imgs };
     const next = [...messages, outgoing];
     setMessages(next);
     setInput("");
+    setAttachments([]);
     setLoading(true);
+    scrollDown();
     try {
       const { reply, pendingActions } = await aiChat({
-        data: { messages: next.map((m) => ({ role: m.role, content: m.content })) },
+        data: {
+          messages: next.map((m) =>
+            m.images?.length
+              ? {
+                  role: m.role,
+                  content: [
+                    { type: "text", text: m.content || "এই ছবিটি দেখে সাহায্য করুন।" },
+                    ...m.images.map((url) => ({ type: "image_url", image_url: { url } })),
+                  ],
+                }
+              : { role: m.role, content: m.content },
+          ),
+        },
       });
       const status: Record<string, "pending"> = {};
       (pendingActions ?? []).forEach((a) => (status[a.id] = "pending"));
+
       setMessages((m) => [
         ...m,
         { role: "assistant", content: reply, actions: pendingActions, actionStatus: status },
