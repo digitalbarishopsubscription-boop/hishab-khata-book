@@ -5,11 +5,12 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 // ---------- Types ----------
 const MessageSchema = z.object({
   role: z.enum(["user", "assistant", "system", "tool"]),
-  content: z.string(),
+  content: z.union([z.string(), z.array(z.any())]),
   tool_call_id: z.string().optional(),
   name: z.string().optional(),
   tool_calls: z.any().optional(),
 });
+
 
 const InputSchema = z.object({
   messages: z.array(MessageSchema).min(1),
