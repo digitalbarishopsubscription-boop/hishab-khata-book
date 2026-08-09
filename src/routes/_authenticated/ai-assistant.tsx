@@ -17,9 +17,11 @@ export const Route = createFileRoute("/_authenticated/ai-assistant")({
 type Msg = {
   role: "user" | "assistant";
   content: string;
+  images?: string[];
   actions?: PendingAction[];
   actionStatus?: Record<string, "pending" | "approved" | "rejected" | "running">;
 };
+
 
 const SUGGESTIONS = [
   "এই মাসের বিক্রয়, খরচ ও লাভ দেখাও",
