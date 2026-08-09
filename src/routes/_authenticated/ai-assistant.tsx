@@ -198,6 +198,14 @@ function AiPage() {
                 {m.role === "user" ? <User className="size-4" /> : <Bot className="size-4" />}
               </div>
               <div className="max-w-[85%] space-y-2">
+                {!!m.images?.length && (
+                  <div className={`flex flex-wrap gap-2 ${m.role === "user" ? "justify-end" : ""}`}>
+                    {m.images.map((src, k) => (
+                      <img key={k} src={src} alt="সংযুক্ত ছবি" className="size-28 rounded-xl object-cover border" />
+                    ))}
+                  </div>
+                )}
+
                 {m.content && (
                   <div className={`rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${
                     m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
