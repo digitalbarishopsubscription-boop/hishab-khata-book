@@ -269,18 +269,67 @@ function AiPage() {
           </div>
         )}
 
+        {attachments.length > 0 && (
+          <div className="px-3 pt-3 flex flex-wrap gap-2">
+            {attachments.map((src, k) => (
+              <div key={k} className="relative">
+                <img src={src} alt="সংযুক্ত ছবি" className="size-16 rounded-lg object-cover border" />
+                <button
+                  onClick={() => setAttachments((a) => a.filter((_, idx) => idx !== k))}
+                  className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-destructive text-destructive-foreground grid place-items-center"
+                  aria-label="ছবি সরান"
+                >
+                  <X className="size-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="p-3 border-t flex gap-2">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              void pickImages(e.target.files);
+              e.target.value = "";
+            }}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => fileRef.current?.click()}
+            disabled={loading}
+            aria-label="ছবি যোগ করুন"
+          >
+            <ImagePlus className="size-4" />
+          </Button>
+          <Button
+            type="button"
+            variant={recording ? "destructive" : "outline"}
+            size="icon"
+            onClick={() => void toggleRecording()}
+            disabled={loading || transcribing}
+            aria-label={recording ? "রেকর্ডিং বন্ধ করুন" : "ভয়েস রেকর্ড করুন"}
+          >
+            {transcribing ? <Loader2 className="size-4 animate-spin" /> : recording ? <Square className="size-4" /> : <Mic className="size-4" />}
+          </Button>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && send()}
-            placeholder="যেমন: আজকের বিক্রয় কত? / ৩০০ টাকা যাতায়াত খরচ যোগ করো"
+            placeholder={recording ? "রেকর্ড হচ্ছে… শেষ হলে বন্ধ করুন" : "যেমন: আজকের বিক্রয় কত? / ৩০০ টাকা যাতায়াত খরচ যোগ করো"}
             disabled={loading}
           />
-          <Button onClick={() => send()} disabled={loading || !input.trim()}>
+          <Button onClick={() => send()} disabled={loading || (!input.trim() && attachments.length === 0)}>
             <Send className="size-4" />
           </Button>
         </div>
+
       </Card>
     </div>
   );
