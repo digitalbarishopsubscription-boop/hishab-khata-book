@@ -165,7 +165,7 @@ function SignupPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">পাসওয়ার্ড</Label>
-              <Input id="password" type="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="কমপক্ষে ৬ অক্ষর" />
+              <Input id="password" type="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="কমপক্ষে ৮ অক্ষর, অক্ষর ও সংখ্যা মিলিয়ে" />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="size-4 mr-2 animate-spin" />} অ্যাকাউন্ট তৈরি করুন
