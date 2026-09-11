@@ -64,7 +64,7 @@ function SignupPage() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
@@ -74,10 +74,18 @@ function SignupPage() {
     });
     setLoading(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(banglaAuthError(error.message));
       return;
     }
-    toast.success("অ্যাকাউন্ট তৈরি হয়েছে! ইমেইল চেক করে যাচাই করুন।");
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      toast.error("এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট খোলা হয়েছে। লগইন করুন।");
+      return;
+    }
+    if (data.session) {
+      navigate({ to: "/dashboard", replace: true });
+      return;
+    }
+    navigate({ to: "/verify-email", search: { email: parsed.data.email }, replace: true });
   };
 
   const onGoogle = async () => {
