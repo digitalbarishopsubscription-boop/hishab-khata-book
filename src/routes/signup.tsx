@@ -20,8 +20,28 @@ const schema = z.object({
   ownerName: z.string().trim().min(2, "মালিকের নাম দিন").max(100),
   businessName: z.string().trim().min(2, "ব্যবসার নাম দিন").max(100),
   email: z.string().trim().email("সঠিক ইমেইল দিন").max(255),
-  password: z.string().min(6, "পাসওয়ার্ড কমপক্ষে ৬ অক্ষর").max(128),
+  password: z
+    .string()
+    .min(8, "পাসওয়ার্ড কমপক্ষে ৮ অক্ষর হতে হবে")
+    .max(128)
+    .regex(/[A-Za-z]/, "পাসওয়ার্ডে অন্তত একটি অক্ষর রাখুন")
+    .regex(/[0-9]/, "পাসওয়ার্ডে অন্তত একটি সংখ্যা রাখুন"),
 });
+
+function banglaAuthError(message: string) {
+  const m = message.toLowerCase();
+  if (m.includes("weak") || m.includes("pwned"))
+    return "এই পাসওয়ার্ডটি খুব সহজ ও ফাঁস হওয়া পাসওয়ার্ডের তালিকায় আছে। অক্ষর, সংখ্যা ও চিহ্ন মিলিয়ে নতুন একটি পাসওয়ার্ড দিন।";
+  if (m.includes("already registered") || m.includes("already been registered") || m.includes("user already"))
+    return "এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট খোলা হয়েছে। লগইন করুন।";
+  if (m.includes("invalid email") || m.includes("email address"))
+    return "ইমেইল ঠিকানাটি সঠিক নয়। আবার দেখুন।";
+  if (m.includes("rate limit") || m.includes("too many"))
+    return "অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।";
+  if (m.includes("password"))
+    return "পাসওয়ার্ড গ্রহণযোগ্য নয়। কমপক্ষে ৮ অক্ষর, সংখ্যা ও চিহ্ন মিলিয়ে দিন।";
+  return message;
+}
 
 function SignupPage() {
   const { user } = useAuth();
