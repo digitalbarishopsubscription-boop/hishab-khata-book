@@ -7,7 +7,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
+import { cn } from "@/lib/utils";
 
 const primary = [
   { title: "ড্যাশবোর্ড", url: "/dashboard", icon: LayoutDashboard },
@@ -51,36 +53,53 @@ export function BottomNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const moreActive = moreGroups.some((group) =>
+    group.items.some((item) => pathname === item.url || pathname.startsWith(`${item.url}/`)),
+  );
 
   return (
-    <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-card border-t border-border shadow-elegant">
-      <ul className="grid grid-cols-5">
+    <nav
+      aria-label="মোবাইল নেভিগেশন"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden"
+    >
+      <ul className="pointer-events-auto mx-auto grid h-[4.5rem] max-w-md grid-cols-5 overflow-hidden rounded-2xl border border-primary/15 bg-card/80 px-1.5 shadow-elegant backdrop-blur-xl supports-[backdrop-filter]:bg-card/70">
         {primary.map((it) => {
-          const active = pathname === it.url;
+          const active = pathname === it.url || pathname.startsWith(`${it.url}/`);
           return (
-            <li key={it.title}>
+            <li key={it.title} className="flex items-center justify-center">
               <Link
                 to={it.url}
-                className={`flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] ${
-                  active ? "text-primary" : "text-muted-foreground"
-                }`}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "relative flex h-[3.75rem] w-full min-w-0 flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-medium transition-colors duration-200",
+                  active
+                    ? "bg-primary/12 text-primary shadow-sm ring-1 ring-inset ring-primary/15"
+                    : "text-muted-foreground hover:bg-accent/70 hover:text-foreground",
+                )}
               >
-                <it.icon className="size-5" />
-                {it.title}
+                <it.icon className={cn("size-5 transition-transform duration-200", active && "scale-110")} />
+                <span className="truncate">{it.title}</span>
               </Link>
             </li>
           );
         })}
-        <li>
+        <li className="flex items-center justify-center">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <button
+              <Button
                 type="button"
-                className="w-full flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] text-muted-foreground"
+                variant="ghost"
+                aria-label="আরও অপশন"
+                className={cn(
+                  "relative h-[3.75rem] w-full min-w-0 flex-col gap-1 rounded-xl px-0 text-[11px] font-medium",
+                  moreActive
+                    ? "bg-primary/12 text-primary shadow-sm ring-1 ring-inset ring-primary/15 hover:bg-primary/15 hover:text-primary"
+                    : "text-muted-foreground hover:bg-accent/70 hover:text-foreground",
+                )}
               >
-                <Menu className="size-5" />
-                আরও
-              </button>
+                <Menu className={cn("size-5 transition-transform duration-200", moreActive && "scale-110")} />
+                <span>আরও</span>
+              </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[85vw] sm:w-96 overflow-y-auto">
               <SheetHeader>
