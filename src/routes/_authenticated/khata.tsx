@@ -21,6 +21,14 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/khata")({
+  head: () => ({
+    meta: [
+      { title: "খাতা ও বাকি — হিসাব পত্র" },
+      { name: "description", content: "দেনা-পাওনার এন্ট্রি দিন এবং বাকির ইতিহাস দেখুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: KhataPage,
 });
 

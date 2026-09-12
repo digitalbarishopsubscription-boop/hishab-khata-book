@@ -15,6 +15,14 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/payments")({
+  head: () => ({
+    meta: [
+      { title: "পেমেন্ট গ্রহণ — হিসাব পত্র" },
+      { name: "description", content: "গ্রাহকের পেমেন্ট গ্রহণ ও রেকর্ড সংরক্ষণ করুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: PaymentsPage,
 });
 

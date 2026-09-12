@@ -30,6 +30,14 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/customers/")({
+  head: () => ({
+    meta: [
+      { title: "গ্রাহক তালিকা — হিসাব পত্র" },
+      { name: "description", content: "গ্রাহক খুঁজুন, ফিল্টার করুন ও প্রোফাইল দেখুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: CustomersPage,
 });
 

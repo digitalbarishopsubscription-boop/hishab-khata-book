@@ -6,7 +6,14 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/invoices")({
-  head: () => ({ meta: [{ title: "ইনভয়েস — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "ইনভয়েস — হিসাব পত্র" },
+      { name: "description", content: "ইনভয়েস তালিকা দেখুন, প্রিন্ট করুন ও পেমেন্ট ট্র্যাক করুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: InvoicesPage,
 });
 

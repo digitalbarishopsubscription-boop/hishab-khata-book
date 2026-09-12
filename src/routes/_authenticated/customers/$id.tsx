@@ -8,6 +8,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/customers/$id")({
+  head: () => ({
+    meta: [
+      { title: "গ্রাহক প্রোফাইল — হিসাব পত্র" },
+      { name: "description", content: "গ্রাহকের লেনদেন ইতিহাস ও বাকির বিস্তারিত দেখুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: CustomerProfile,
 });
 

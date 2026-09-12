@@ -16,7 +16,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/roles")({
-  head: () => ({ meta: [{ title: "রোল ও অনুমতি — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "রোল ও অনুমতি — হিসাব পত্র" },
+      { name: "description", content: "ব্যবহারকারীর ভূমিকা ও অনুমতি নিয়ন্ত্রণ করুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: RolesPage,
 });
 

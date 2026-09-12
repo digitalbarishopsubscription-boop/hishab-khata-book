@@ -11,7 +11,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/branches")({
-  head: () => ({ meta: [{ title: "ব্রাঞ্চ — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "ব্রাঞ্চ — হিসাব পত্র" },
+      { name: "description", content: "একাধিক শাখার তথ্য ও কার্যক্রম পরিচালনা করুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: BranchesPage,
 });
 

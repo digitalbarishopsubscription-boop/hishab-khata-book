@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/_authenticated")({
+  staticData: { sitemap: false },
   component: AuthLayout,
 });
 

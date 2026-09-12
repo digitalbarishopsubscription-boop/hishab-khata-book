@@ -6,7 +6,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/_authenticated/sales/$id/invoice")({
-  head: () => ({ meta: [{ title: "ইনভয়েস — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "বিক্রয় ইনভয়েস — হিসাব পত্র" },
+      { name: "description", content: "নির্দিষ্ট বিক্রয়ের প্রিন্টযোগ্য ইনভয়েস দেখুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: InvoicePage,
 });
 

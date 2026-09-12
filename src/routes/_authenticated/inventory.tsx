@@ -17,7 +17,14 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/inventory")({
-  head: () => ({ meta: [{ title: "ইনভেন্টরি — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "ইনভেন্টরি — হিসাব পত্র" },
+      { name: "description", content: "পণ্যের স্টক, মূল্য ও কম-স্টক সতর্কতা ব্যবস্থাপনা করুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: InventoryPage,
 });
 
