@@ -28,7 +28,7 @@ function AuthLayout() {
   return (
     <div className="min-h-screen flex bg-background">
       <AppSidebar />
-      <div className="flex-1 min-w-0 pb-20 lg:pb-0">
+      <div className="flex-1 min-w-0 pb-24 lg:pb-0">
         <Outlet />
       </div>
       <BottomNav />
