@@ -6,7 +6,14 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/finance")({
-  head: () => ({ meta: [{ title: "আর্থিক — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "আর্থিক — হিসাব পত্র" },
+      { name: "description", content: "ক্যাশ ফ্লো, লাভ-ক্ষতি ও আর্থিক অবস্থা পর্যবেক্ষণ করুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: FinancePage,
 });
 

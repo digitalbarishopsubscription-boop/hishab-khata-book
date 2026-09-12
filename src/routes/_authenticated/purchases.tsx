@@ -23,7 +23,14 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/purchases")({
-  head: () => ({ meta: [{ title: "ক্রয় — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "ক্রয় — হিসাব পত্র" },
+      { name: "description", content: "ক্রয় এন্ট্রি, ইতিহাস ও সাপ্লায়ার পেমেন্ট ব্যবস্থাপনা।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: PurchasesPage,
 });
 

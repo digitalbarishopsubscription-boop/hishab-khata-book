@@ -21,7 +21,14 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/sales")({
-  head: () => ({ meta: [{ title: "বিক্রয় — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "বিক্রয় — হিসাব পত্র" },
+      { name: "description", content: "নতুন বিক্রয় এন্ট্রি দিন এবং বিক্রয় ইতিহাস দেখুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: SalesPage,
 });
 

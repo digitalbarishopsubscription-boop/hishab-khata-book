@@ -8,7 +8,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
-  head: () => ({ meta: [{ title: "নোটিফিকেশন — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "নোটিফিকেশন — হিসাব পত্র" },
+      { name: "description", content: "বাকি, স্টক ও পেমেন্ট সংক্রান্ত জরুরি বিজ্ঞপ্তি দেখুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: NotificationsPage,
 });
 

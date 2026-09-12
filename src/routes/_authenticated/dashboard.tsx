@@ -37,7 +37,14 @@ const slides = [
 ];
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "ড্যাশবোর্ড — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "ড্যাশবোর্ড — হিসাব পত্র" },
+      { name: "description", content: "আজকের বিক্রয়, বাকি ও ব্যবসার সারসংক্ষেপ এক নজরে দেখুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: Dashboard,
 });
 

@@ -10,7 +10,14 @@ import { toast } from "sonner";
 
 
 export const Route = createFileRoute("/_authenticated/ai-assistant")({
-  head: () => ({ meta: [{ title: "এআই সহকারী — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "এআই সহকারী — হিসাব পত্র" },
+      { name: "description", content: "চ্যাটে ব্যবসার রিপোর্ট, পরামর্শ ও কাজ সম্পন্ন করুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: AiPage,
 });
 

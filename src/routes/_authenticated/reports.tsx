@@ -6,7 +6,14 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/reports")({
-  head: () => ({ meta: [{ title: "রিপোর্ট — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "রিপোর্ট — হিসাব পত্র" },
+      { name: "description", content: "বিক্রয়, ক্রয় ও গ্রাহকভিত্তিক বিস্তারিত রিপোর্ট তৈরি করুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: ReportsPage,
 });
 

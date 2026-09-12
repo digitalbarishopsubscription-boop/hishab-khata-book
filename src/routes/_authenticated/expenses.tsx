@@ -16,7 +16,14 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/expenses")({
-  head: () => ({ meta: [{ title: "খরচ — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "খরচ — হিসাব পত্র" },
+      { name: "description", content: "ব্যবসার দৈনিক খরচ যোগ করুন ও খরচের খাত বিশ্লেষণ করুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: ExpensesPage,
 });
 

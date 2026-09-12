@@ -12,7 +12,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/signup")({
-  head: () => ({ meta: [{ title: "সাইনআপ — হিসাব পত্র" }] }),
+  staticData: { sitemap: true },
+  head: () => ({
+    meta: [
+      { title: "সাইনআপ — বিনামূল্যে অ্যাকাউন্ট খুলুন | হিসাব পত্র" },
+      { name: "description", content: "মালিক অ্যাকাউন্ট খুলে বাংলায় খাতা, বিক্রয় ও ইনভেন্টরি ব্যবস্থাপনা শুরু করুন।" },
+      { property: "og:title", content: "সাইনআপ — হিসাব পত্র" },
+      { property: "og:description", content: "মালিক অ্যাকাউন্ট খুলে বাংলায় খাতা, বিক্রয় ও ইনভেন্টরি ব্যবস্থাপনা শুরু করুন।" },
+      { property: "og:url", content: "https://hishab-khata-book.lovable.app/signup" },
+    ],
+    links: [{ rel: "canonical", href: "https://hishab-khata-book.lovable.app/signup" }],
+  }),
   component: SignupPage,
 });
 

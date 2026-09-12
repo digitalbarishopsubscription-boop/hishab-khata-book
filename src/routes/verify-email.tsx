@@ -13,6 +13,7 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/verify-email")({
   validateSearch: searchSchema,
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "ইমেইল যাচাই করুন — হিসাব পত্র" },

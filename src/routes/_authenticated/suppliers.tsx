@@ -11,7 +11,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/suppliers")({
-  head: () => ({ meta: [{ title: "সাপ্লায়ার — হিসাব পত্র" }] }),
+  head: () => ({
+    meta: [
+      { title: "সাপ্লায়ার — হিসাব পত্র" },
+      { name: "description", content: "সাপ্লায়ার প্রোফাইল ও পাওনা হিসাব রাখুন।" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  staticData: { sitemap: false },
   component: SuppliersPage,
 });
 

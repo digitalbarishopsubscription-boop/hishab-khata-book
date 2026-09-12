@@ -6,11 +6,16 @@ import { Link } from "@tanstack/react-router";
 import { TrendingUp, Wallet, Users, BookOpen, Bot, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "হিসাব পত্র — বাংলায় সম্পূর্ণ ব্যবসা ব্যবস্থাপনা" },
       { name: "description", content: "খাতা, বিক্রয়, ইনভেন্টরি, এআই — এক অ্যাপেই আপনার পুরো ব্যবসা।" },
+      { property: "og:title", content: "হিসাব পত্র — বাংলায় সম্পূর্ণ ব্যবসা ব্যবস্থাপনা" },
+      { property: "og:description", content: "খাতা, বিক্রয়, ইনভেন্টরি, এআই — এক অ্যাপেই আপনার পুরো ব্যবসা।" },
+      { property: "og:url", content: "https://hishab-khata-book.lovable.app/" },
     ],
+    links: [{ rel: "canonical", href: "https://hishab-khata-book.lovable.app/" }],
   }),
   component: Landing,
 });
