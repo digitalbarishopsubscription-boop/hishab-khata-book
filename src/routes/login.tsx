@@ -12,7 +12,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "লগইন — হিসাব পত্র" }] }),
+  staticData: { sitemap: true },
+  head: () => ({
+    meta: [
+      { title: "লগইন — আপনার ব্যবসার হিসাবে প্রবেশ | হিসাব পত্র" },
+      { name: "description", content: "হিসাব পত্র অ্যাকাউন্টে লগইন করে বিক্রয়, বাকি ও ইনভেন্টরি দেখুন।" },
+      { property: "og:title", content: "লগইন — হিসাব পত্র" },
+      { property: "og:description", content: "হিসাব পত্র অ্যাকাউন্টে লগইন করে বিক্রয়, বাকি ও ইনভেন্টরি দেখুন।" },
+      { property: "og:url", content: "https://hishab-khata-book.lovable.app/login" },
+    ],
+    links: [{ rel: "canonical", href: "https://hishab-khata-book.lovable.app/login" }],
+  }),
   component: LoginPage,
 });
 
