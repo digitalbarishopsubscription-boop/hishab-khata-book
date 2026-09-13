@@ -16,7 +16,6 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AuthenticatedAiAssistantRouteImport } from './routes/_authenticated/ai-assistant'
 import { Route as AuthenticatedBranchesRouteImport } from './routes/_authenticated/branches'
-import { Route as AuthenticatedCeoRouteImport } from './routes/_authenticated/ceo'
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedEmployeesRouteImport } from './routes/_authenticated/employees'
@@ -29,10 +28,10 @@ import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authen
 import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
 import { Route as AuthenticatedPurchasesRouteImport } from './routes/_authenticated/purchases'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
-import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSuppliersRouteImport } from './routes/_authenticated/suppliers'
+import { Route as AuthenticatedTutorialRouteImport } from './routes/_authenticated/tutorial'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers.index'
 import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers/$id'
 import { Route as AuthenticatedSalesIdInvoiceRouteImport } from './routes/_authenticated/sales/$id/invoice'
@@ -70,11 +69,6 @@ const AuthenticatedAiAssistantRoute =
 const AuthenticatedBranchesRoute = AuthenticatedBranchesRouteImport.update({
   id: '/branches',
   path: '/branches',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedCeoRoute = AuthenticatedCeoRouteImport.update({
-  id: '/ceo',
-  path: '/ceo',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCustomersRoute = AuthenticatedCustomersRouteImport.update({
@@ -138,11 +132,6 @@ const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedRolesRoute = AuthenticatedRolesRouteImport.update({
-  id: '/roles',
-  path: '/roles',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
   id: '/sales',
   path: '/sales',
@@ -156,6 +145,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
 const AuthenticatedSuppliersRoute = AuthenticatedSuppliersRouteImport.update({
   id: '/suppliers',
   path: '/suppliers',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedTutorialRoute = AuthenticatedTutorialRouteImport.update({
+  id: '/tutorial',
+  path: '/tutorial',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCustomersIndexRoute =
@@ -184,7 +178,6 @@ export interface FileRoutesByFullPath {
   '/verify-email': typeof VerifyEmailRoute
   '/ai-assistant': typeof AuthenticatedAiAssistantRoute
   '/branches': typeof AuthenticatedBranchesRoute
-  '/ceo': typeof AuthenticatedCeoRoute
   '/customers': typeof AuthenticatedCustomersRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/employees': typeof AuthenticatedEmployeesRoute
@@ -197,10 +190,10 @@ export interface FileRoutesByFullPath {
   '/payments': typeof AuthenticatedPaymentsRoute
   '/purchases': typeof AuthenticatedPurchasesRoute
   '/reports': typeof AuthenticatedReportsRoute
-  '/roles': typeof AuthenticatedRolesRoute
   '/sales': typeof AuthenticatedSalesRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/suppliers': typeof AuthenticatedSuppliersRoute
+  '/tutorial': typeof AuthenticatedTutorialRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/sales/$id/invoice': typeof AuthenticatedSalesIdInvoiceRoute
@@ -212,7 +205,6 @@ export interface FileRoutesByTo {
   '/verify-email': typeof VerifyEmailRoute
   '/ai-assistant': typeof AuthenticatedAiAssistantRoute
   '/branches': typeof AuthenticatedBranchesRoute
-  '/ceo': typeof AuthenticatedCeoRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/employees': typeof AuthenticatedEmployeesRoute
   '/expenses': typeof AuthenticatedExpensesRoute
@@ -224,10 +216,10 @@ export interface FileRoutesByTo {
   '/payments': typeof AuthenticatedPaymentsRoute
   '/purchases': typeof AuthenticatedPurchasesRoute
   '/reports': typeof AuthenticatedReportsRoute
-  '/roles': typeof AuthenticatedRolesRoute
   '/sales': typeof AuthenticatedSalesRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/suppliers': typeof AuthenticatedSuppliersRoute
+  '/tutorial': typeof AuthenticatedTutorialRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/sales/$id/invoice': typeof AuthenticatedSalesIdInvoiceRoute
@@ -241,7 +233,6 @@ export interface FileRoutesById {
   '/verify-email': typeof VerifyEmailRoute
   '/_authenticated/ai-assistant': typeof AuthenticatedAiAssistantRoute
   '/_authenticated/branches': typeof AuthenticatedBranchesRoute
-  '/_authenticated/ceo': typeof AuthenticatedCeoRoute
   '/_authenticated/customers': typeof AuthenticatedCustomersRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/employees': typeof AuthenticatedEmployeesRoute
@@ -254,10 +245,10 @@ export interface FileRoutesById {
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/purchases': typeof AuthenticatedPurchasesRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
-  '/_authenticated/roles': typeof AuthenticatedRolesRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/suppliers': typeof AuthenticatedSuppliersRoute
+  '/_authenticated/tutorial': typeof AuthenticatedTutorialRoute
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/sales/$id/invoice': typeof AuthenticatedSalesIdInvoiceRoute
@@ -271,7 +262,6 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/ai-assistant'
     | '/branches'
-    | '/ceo'
     | '/customers'
     | '/dashboard'
     | '/employees'
@@ -284,10 +274,10 @@ export interface FileRouteTypes {
     | '/payments'
     | '/purchases'
     | '/reports'
-    | '/roles'
     | '/sales'
     | '/settings'
     | '/suppliers'
+    | '/tutorial'
     | '/customers/$id'
     | '/customers/'
     | '/sales/$id/invoice'
@@ -299,7 +289,6 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/ai-assistant'
     | '/branches'
-    | '/ceo'
     | '/dashboard'
     | '/employees'
     | '/expenses'
@@ -311,10 +300,10 @@ export interface FileRouteTypes {
     | '/payments'
     | '/purchases'
     | '/reports'
-    | '/roles'
     | '/sales'
     | '/settings'
     | '/suppliers'
+    | '/tutorial'
     | '/customers/$id'
     | '/customers'
     | '/sales/$id/invoice'
@@ -327,7 +316,6 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/_authenticated/ai-assistant'
     | '/_authenticated/branches'
-    | '/_authenticated/ceo'
     | '/_authenticated/customers'
     | '/_authenticated/dashboard'
     | '/_authenticated/employees'
@@ -340,10 +328,10 @@ export interface FileRouteTypes {
     | '/_authenticated/payments'
     | '/_authenticated/purchases'
     | '/_authenticated/reports'
-    | '/_authenticated/roles'
     | '/_authenticated/sales'
     | '/_authenticated/settings'
     | '/_authenticated/suppliers'
+    | '/_authenticated/tutorial'
     | '/_authenticated/customers/$id'
     | '/_authenticated/customers/'
     | '/_authenticated/sales/$id/invoice'
@@ -406,13 +394,6 @@ declare module '@tanstack/react-router' {
       path: '/branches'
       fullPath: '/branches'
       preLoaderRoute: typeof AuthenticatedBranchesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/ceo': {
-      id: '/_authenticated/ceo'
-      path: '/ceo'
-      fullPath: '/ceo'
-      preLoaderRoute: typeof AuthenticatedCeoRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/customers': {
@@ -499,13 +480,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/roles': {
-      id: '/_authenticated/roles'
-      path: '/roles'
-      fullPath: '/roles'
-      preLoaderRoute: typeof AuthenticatedRolesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/sales': {
       id: '/_authenticated/sales'
       path: '/sales'
@@ -525,6 +499,13 @@ declare module '@tanstack/react-router' {
       path: '/suppliers'
       fullPath: '/suppliers'
       preLoaderRoute: typeof AuthenticatedSuppliersRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/tutorial': {
+      id: '/_authenticated/tutorial'
+      path: '/tutorial'
+      fullPath: '/tutorial'
+      preLoaderRoute: typeof AuthenticatedTutorialRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/customers/': {
@@ -581,7 +562,6 @@ const AuthenticatedSalesRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedAiAssistantRoute: typeof AuthenticatedAiAssistantRoute
   AuthenticatedBranchesRoute: typeof AuthenticatedBranchesRoute
-  AuthenticatedCeoRoute: typeof AuthenticatedCeoRoute
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEmployeesRoute: typeof AuthenticatedEmployeesRoute
@@ -594,16 +574,15 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedPurchasesRoute: typeof AuthenticatedPurchasesRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
-  AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSuppliersRoute: typeof AuthenticatedSuppliersRoute
+  AuthenticatedTutorialRoute: typeof AuthenticatedTutorialRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAiAssistantRoute: AuthenticatedAiAssistantRoute,
   AuthenticatedBranchesRoute: AuthenticatedBranchesRoute,
-  AuthenticatedCeoRoute: AuthenticatedCeoRoute,
   AuthenticatedCustomersRoute: AuthenticatedCustomersRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEmployeesRoute: AuthenticatedEmployeesRoute,
@@ -616,10 +595,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedPurchasesRoute: AuthenticatedPurchasesRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
-  AuthenticatedRolesRoute: AuthenticatedRolesRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSuppliersRoute: AuthenticatedSuppliersRoute,
+  AuthenticatedTutorialRoute: AuthenticatedTutorialRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
