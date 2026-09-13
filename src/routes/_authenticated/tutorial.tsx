@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/_authenticated/ceo")({
+export const Route = createFileRoute("/_authenticated/tutorial")({
   head: () => ({
     meta: [
       { title: "CEO কন্ট্রোল — হিসাব পত্র" },
