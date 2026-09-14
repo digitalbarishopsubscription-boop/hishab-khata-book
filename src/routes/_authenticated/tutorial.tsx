@@ -1,115 +1,277 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Crown, Loader2, TrendingUp, Users, Package, ShoppingCart, Receipt, Activity } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import {
+  GraduationCap, LayoutDashboard, ShoppingCart, Users, BookOpen, Package,
+  Receipt, BarChart3, CheckCircle2, Circle, PlayCircle, Sparkles, RotateCcw,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/lib/auth-context";
-import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/tutorial")({
   head: () => ({
     meta: [
-      { title: "CEO কন্ট্রোল — হিসাব পত্র" },
-      { name: "description", content: "পুরো ব্যবসার উচ্চস্তরের নিয়ন্ত্রণ ও সূচক এক জায়গায়।" },
+      { title: "টিউটোরিয়াল — হিসাব পত্র" },
+      { name: "description", content: "ধাপে ধাপে শিখুন কীভাবে হিসাব পত্র দিয়ে আপনার ব্যবসা চালাবেন।" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   staticData: { sitemap: false },
-  component: CeoPage,
+  component: TutorialPage,
 });
 
 const bn = (n: number) => String(Math.round(n)).replace(/[0-9]/g, (d) => "০১২৩৪৫৬৭৮৯"[+d]);
 
-function CeoPage() {
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [k, setK] = useState({ sales: 0, purchases: 0, expenses: 0, customers: 0, products: 0, employees: 0, branches: 0 });
+type Lesson = {
+  id: string;
+  title: string;
+  minutes: number;
+  icon: any;
+  summary: string;
+  steps: string[];
+};
+
+const lessons: Lesson[] = [
+  {
+    id: "dashboard",
+    title: "ড্যাশবোর্ড বুঝে নিন",
+    minutes: 3,
+    icon: LayoutDashboard,
+    summary: "এক নজরে আয়, ব্যয়, বাকি ও আজকের বিক্রয় দেখার নিয়ম।",
+    steps: [
+      "সাইডবার থেকে ড্যাশবোর্ড খুলুন।",
+      "উপরের কার্ডগুলোতে মোট বিক্রয়, খরচ ও লাভ দেখুন।",
+      "নিচের তালিকায় সাম্প্রতিক লেনদেন যাচাই করুন।",
+    ],
+  },
+  {
+    id: "sales",
+    title: "প্রথম বিক্রয় এন্ট্রি",
+    minutes: 4,
+    icon: ShoppingCart,
+    summary: "নগদ বা বাকিতে বিক্রয় লিখে ইনভয়েস তৈরি করুন।",
+    steps: [
+      "বিক্রয় পেজে যান এবং নতুন বিক্রয় ফর্ম পূরণ করুন।",
+      "কাস্টমার বাছাই করুন অথবা ওয়াক-ইন রাখুন।",
+      "পণ্য, পরিমাণ ও দাম দিন, তারপর সেভ করুন।",
+      "প্রয়োজনে ইনভয়েস প্রিন্ট করুন।",
+    ],
+  },
+  {
+    id: "customers",
+    title: "কাস্টমার ব্যবস্থাপনা",
+    minutes: 3,
+    icon: Users,
+    summary: "গ্রাহক যোগ করা, খোঁজা ও প্রোফাইল দেখা।",
+    steps: [
+      "কাস্টমার পেজে নতুন গ্রাহক যোগ করুন।",
+      "নাম বা ফোন দিয়ে দ্রুত খুঁজুন।",
+      "কার্ডে ক্লিক করে পুরো লেনদেন ইতিহাস দেখুন।",
+    ],
+  },
+  {
+    id: "khata",
+    title: "খাতা ও বাকি আদায়",
+    minutes: 5,
+    icon: BookOpen,
+    summary: "বাকি লেখা, পেমেন্ট গ্রহণ ও ব্যালেন্স মেলানো।",
+    steps: [
+      "খাতা পেজে গ্রাহক নির্বাচন করুন।",
+      "নতুন বাকি বা জমা এন্ট্রি দিন।",
+      "পেমেন্ট গ্রহণ পেজ থেকে টাকা আদায় লিখুন।",
+      "ব্যালেন্স শূন্য হলে হিসাব মিলে গেছে।",
+    ],
+  },
+  {
+    id: "inventory",
+    title: "ইনভেন্টরি ও স্টক",
+    minutes: 4,
+    icon: Package,
+    summary: "পণ্য যোগ, স্টক আপডেট ও কম স্টকের সতর্কতা।",
+    steps: [
+      "ইনভেন্টরি পেজে পণ্য যোগ করুন।",
+      "ক্রয় মূল্য ও বিক্রয় মূল্য দিন।",
+      "কম স্টক অ্যালার্টের সীমা নির্ধারণ করুন।",
+    ],
+  },
+  {
+    id: "expenses",
+    title: "খরচ লিপিবদ্ধ করা",
+    minutes: 2,
+    icon: Receipt,
+    summary: "দোকান ভাড়া, বিদ্যুৎ ও অন্যান্য খরচ ঠিকভাবে লেখা।",
+    steps: [
+      "খরচ পেজে নতুন খরচ যোগ করুন।",
+      "ক্যাটাগরি ও তারিখ নির্বাচন করুন।",
+      "প্রতি মাসে খরচের সারাংশ দেখুন।",
+    ],
+  },
+  {
+    id: "reports",
+    title: "রিপোর্ট পড়া",
+    minutes: 4,
+    icon: BarChart3,
+    summary: "লাভ-ক্ষতি ও বিক্রয় রিপোর্ট থেকে সিদ্ধান্ত নেওয়া।",
+    steps: [
+      "রিপোর্ট পেজে সময়সীমা বাছুন।",
+      "বিক্রয়, খরচ ও লাভ তুলনা করুন।",
+      "সেরা বিক্রিত পণ্য চিহ্নিত করুন।",
+    ],
+  },
+];
+
+const STORAGE_KEY = "hishab-tutorial-progress";
+
+function TutorialPage() {
+  const [done, setDone] = useState<string[]>([]);
+  const [activeId, setActiveId] = useState<string>(lessons[0]!.id);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
-    (async () => {
-      setLoading(true);
-      const [s, p, e, c, pr, em, br] = await Promise.all([
-        supabase.from("sales" as any).select("total"),
-        supabase.from("purchases" as any).select("total"),
-        supabase.from("expenses").select("amount"),
-        supabase.from("customers").select("id", { count: "exact", head: true }),
-        supabase.from("products" as any).select("id", { count: "exact", head: true }),
-        supabase.from("employees" as any).select("id", { count: "exact", head: true }),
-        supabase.from("branches" as any).select("id", { count: "exact", head: true }),
-      ]);
-      const sum = (r: any, key: string) => (r.data ?? []).reduce((a: number, x: any) => a + Number(x[key] || 0), 0);
-      setK({
-        sales: sum(s, "total"), purchases: sum(p, "total"), expenses: sum(e, "amount"),
-        customers: c.count ?? 0, products: pr.count ?? 0, employees: em.count ?? 0, branches: br.count ?? 0,
-      });
-      setLoading(false);
-    })();
-  }, [user]);
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) setDone(JSON.parse(raw) as string[]);
+    } catch {
+      /* ignore */
+    }
+    setReady(true);
+  }, []);
 
-  if (loading) return <div className="min-h-[60vh] grid place-items-center"><Loader2 className="size-6 animate-spin text-primary" /></div>;
-  const profit = k.sales - k.purchases - k.expenses;
-  const margin = k.sales > 0 ? (profit / k.sales) * 100 : 0;
+  useEffect(() => {
+    if (ready) localStorage.setItem(STORAGE_KEY, JSON.stringify(done));
+  }, [done, ready]);
+
+  const active = useMemo(() => lessons.find((l) => l.id === activeId) ?? lessons[0]!, [activeId]);
+  const completed = done.length;
+  const percent = Math.round((completed / lessons.length) * 100);
+  const next = lessons.find((l) => !done.includes(l.id));
+
+  const toggle = (id: string) =>
+    setDone((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-6">
-      <header className="flex items-center gap-3">
-        <div className="size-12 rounded-xl bg-gold grid place-items-center text-gold-foreground">
-          <Crown className="size-6" />
+      <header className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 md:p-8">
+        <div className="absolute -right-12 -top-12 size-48 rounded-full bg-primary/10 blur-2xl" aria-hidden />
+        <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="size-12 shrink-0 rounded-xl bg-gradient-to-br from-primary to-primary/70 grid place-items-center text-primary-foreground shadow-lg">
+              <GraduationCap className="size-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-display">টিউটোরিয়াল</h1>
+              <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+                ধাপে ধাপে শিখুন কীভাবে হিসাব পত্র দিয়ে আপনার দোকান বা ব্যবসার পুরো হিসাব রাখবেন।
+              </p>
+            </div>
+          </div>
+          <div className="min-w-[14rem] rounded-xl border border-primary/15 bg-card/70 p-4 backdrop-blur">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span className="flex items-center gap-1"><Sparkles className="size-3" /> অগ্রগতি</span>
+              <span>{bn(completed)}/{bn(lessons.length)}</span>
+            </div>
+            <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-primary/10">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-500"
+                style={{ width: `${percent}%` }}
+              />
+            </div>
+            <div className="mt-2 text-lg font-bold text-display text-primary">{bn(percent)}% সম্পন্ন</div>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-display">CEO কন্ট্রোল সেন্টার</h1>
-          <p className="text-sm text-muted-foreground mt-1">সর্বোচ্চ স্তরের ব্যবসায়িক নিয়ন্ত্রণ</p>
+
+        <div className="relative mt-5 flex flex-wrap items-center gap-2">
+          <Button
+            onClick={() => next && setActiveId(next.id)}
+            disabled={!next}
+            className="gap-2"
+          >
+            <PlayCircle className="size-4" />
+            {completed === 0 ? "শুরু করুন" : next ? "পরবর্তী পাঠ" : "সব পাঠ শেষ 🎉"}
+          </Button>
+          {completed > 0 && (
+            <Button variant="outline" className="gap-2" onClick={() => setDone([])}>
+              <RotateCcw className="size-4" /> রিসেট
+            </Button>
+          )}
         </div>
       </header>
 
-      <div className="grid gap-3 md:grid-cols-3">
-        <div className="rounded-xl border p-5 bg-gradient-to-br from-emerald-500/10 to-transparent">
-          <div className="text-xs text-muted-foreground">নিট লাভ</div>
-          <div className={`text-3xl font-bold text-display mt-2 ${profit >= 0 ? "text-emerald-600" : "text-rose-600"}`}>৳{bn(Math.abs(profit))}</div>
-          <div className="text-xs text-muted-foreground mt-1">মার্জিন: {bn(margin)}%</div>
-        </div>
-        <div className="rounded-xl border p-5">
-          <div className="text-xs text-muted-foreground">মোট আয়</div>
-          <div className="text-3xl font-bold text-display mt-2">৳{bn(k.sales)}</div>
-          <div className="text-xs text-muted-foreground mt-1"><TrendingUp className="size-3 inline" /> বিক্রয় থেকে</div>
-        </div>
-        <div className="rounded-xl border p-5">
-          <div className="text-xs text-muted-foreground">মোট ব্যয়</div>
-          <div className="text-3xl font-bold text-display mt-2">৳{bn(k.purchases + k.expenses)}</div>
-          <div className="text-xs text-muted-foreground mt-1">ক্রয় + খরচ</div>
-        </div>
-      </div>
+      <div className="grid gap-5 lg:grid-cols-[1fr_1.1fr]">
+        <Card className="border-primary/10">
+          <CardHeader>
+            <CardTitle className="text-base">পাঠসমূহ</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {lessons.map((l, i) => {
+              const isDone = done.includes(l.id);
+              const isActive = l.id === activeId;
+              return (
+                <button
+                  key={l.id}
+                  onClick={() => setActiveId(l.id)}
+                  className={cn(
+                    "w-full text-left flex items-center gap-3 rounded-xl border p-3 transition-colors",
+                    isActive
+                      ? "border-primary/40 bg-primary/10"
+                      : "border-border hover:bg-accent/60",
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "size-9 shrink-0 rounded-lg grid place-items-center",
+                      isDone ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary",
+                    )}
+                  >
+                    <l.icon className="size-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium truncate">
+                      {bn(i + 1)}. {l.title}
+                    </div>
+                    <div className="text-[11px] text-muted-foreground truncate">
+                      {bn(l.minutes)} মিনিট · {l.summary}
+                    </div>
+                  </div>
+                  {isDone ? (
+                    <CheckCircle2 className="size-4 text-primary shrink-0" />
+                  ) : (
+                    <Circle className="size-4 text-muted-foreground/50 shrink-0" />
+                  )}
+                </button>
+              );
+            })}
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader><CardTitle className="text-base flex items-center gap-2"><Activity className="size-4" /> সংগঠন</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Chip icon={Users} label="কাস্টমার" value={k.customers} />
-          <Chip icon={Package} label="পণ্য" value={k.products} />
-          <Chip icon={ShoppingCart} label="কর্মচারী" value={k.employees} />
-          <Chip icon={Receipt} label="ব্রাঞ্চ" value={k.branches} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle className="text-base">দ্রুত অ্যাকশন</CardTitle></CardHeader>
-        <CardContent className="grid gap-2 sm:grid-cols-2">
-          <Link to="/reports" className="rounded-lg border p-3 hover:bg-accent text-sm font-medium">📊 বিস্তারিত রিপোর্ট</Link>
-          <Link to="/finance" className="rounded-lg border p-3 hover:bg-accent text-sm font-medium">💰 আর্থিক বিশ্লেষণ</Link>
-          <Link to="/roles" className="rounded-lg border p-3 hover:bg-accent text-sm font-medium">🛡 রোল ও অনুমতি</Link>
-          <Link to="/settings" className="rounded-lg border p-3 hover:bg-accent text-sm font-medium">⚙️ সেটিংস</Link>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-function Chip({ icon: Icon, label, value }: { icon: any; label: string; value: number }) {
-  return (
-    <div className="rounded-lg border p-3 flex items-center gap-3">
-      <div className="size-9 rounded-md bg-primary/10 grid place-items-center text-primary"><Icon className="size-4" /></div>
-      <div>
-        <div className="text-[11px] text-muted-foreground">{label}</div>
-        <div className="text-lg font-bold text-display">{bn(value)}</div>
+        <Card className="border-primary/10 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <active.icon className="size-4 text-primary" /> {active.title}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">{active.summary}</p>
+            <ol className="space-y-3">
+              {active.steps.map((s, i) => (
+                <li key={s} className="flex gap-3">
+                  <span className="mt-0.5 size-6 shrink-0 rounded-full bg-primary/10 text-primary grid place-items-center text-xs font-bold">
+                    {bn(i + 1)}
+                  </span>
+                  <span className="text-sm leading-relaxed">{s}</span>
+                </li>
+              ))}
+            </ol>
+            <Button
+              variant={done.includes(active.id) ? "outline" : "default"}
+              className="w-full gap-2"
+              onClick={() => toggle(active.id)}
+            >
+              <CheckCircle2 className="size-4" />
+              {done.includes(active.id) ? "সম্পন্ন চিহ্ন সরান" : "সম্পন্ন হিসেবে চিহ্নিত করুন"}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
