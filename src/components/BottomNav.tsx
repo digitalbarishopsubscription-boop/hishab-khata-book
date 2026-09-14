@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, ShoppingCart, BookOpen, Users, Menu,
   Truck, ShoppingBag, Package, FileText, Receipt, Wallet,
-  UserCog, Building2, BarChart3, Bot, Bell, Crown, Shield, Settings,
+  UserCog, Building2, BarChart3, Bot, Bell, GraduationCap, Settings,
   HandCoins, LogOut,
 } from "lucide-react";
 import { useState } from "react";
@@ -42,8 +42,7 @@ const moreGroups: { label: string; items: { title: string; url: string; icon: an
       { title: "ব্রাঞ্চ", url: "/branches", icon: Building2 },
       { title: "রিপোর্ট", url: "/reports", icon: BarChart3 },
       { title: "নোটিফিকেশন", url: "/notifications", icon: Bell },
-      { title: "CEO কন্ট্রোল", url: "/ceo", icon: Crown },
-      { title: "রোল ও অনুমতি", url: "/roles", icon: Shield },
+      { title: "টিউটোরিয়াল", url: "/tutorial", icon: GraduationCap },
       { title: "সেটিংস", url: "/settings", icon: Settings },
     ],
   },
