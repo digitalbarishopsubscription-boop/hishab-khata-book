@@ -14,6 +14,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
+import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+import { setupServiceWorker } from "@/lib/pwa";
 
 function NotFoundComponent() {
   return (
@@ -92,9 +94,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2c3ead48-7102-4264-97c1-12890f2c334c/id-preview-111eefe1--a8c709ca-360f-41ed-95f4-5075436649dc.lovable.app-1780465726413.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2c3ead48-7102-4264-97c1-12890f2c334c/id-preview-111eefe1--a8c709ca-360f-41ed-95f4-5075436649dc.lovable.app-1780465726413.png" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#a350eb" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "হিসাব পত্র" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.json" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -124,11 +133,16 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    setupServiceWorker();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Outlet />
         <Toaster />
+        <PwaInstallPrompt />
       </AuthProvider>
     </QueryClientProvider>
   );
