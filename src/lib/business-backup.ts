@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 type BackupRow = Record<string, unknown>;
 
 function rows<T extends object>(data: T[] | null): BackupRow[] {
-  return (data ?? []).map((item) => ({ ...item }));
+  return (data ?? []).map((item) => Object.fromEntries(Object.entries(item)));
 }
 
 export async function createBusinessBackup(userId: string) {
