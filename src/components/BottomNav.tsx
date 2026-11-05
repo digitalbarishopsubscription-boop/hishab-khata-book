@@ -3,13 +3,15 @@ import {
   LayoutDashboard, ShoppingCart, BookOpen, Users, Menu,
   Truck, ShoppingBag, Package, FileText, Receipt, Wallet,
   UserCog, Building2, BarChart3, Bot, Bell, GraduationCap, Settings,
-  HandCoins, LogOut,
+  HandCoins, LogOut, Download, FileSpreadsheet, LoaderCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
+import { createBusinessBackup, downloadBusinessBackup } from "@/lib/business-backup";
+import { toast } from "sonner";
 
 const primary = [
   { title: "ড্যাশবোর্ড", url: "/dashboard", icon: LayoutDashboard },
@@ -51,6 +53,8 @@ const moreGroups: { label: string; items: { title: string; url: string; icon: an
 export function BottomNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
+  const [backupLoading, setBackupLoading] = useState(false);
+  const [backup, setBackup] = useState<{ blob: Blob; filename: string } | null>(null);
   const { user, signOut } = useAuth();
   const moreActive = moreGroups.some((group) =>
     group.items.some((item) => pathname === item.url || pathname.startsWith(`${item.url}/`)),
@@ -140,6 +144,44 @@ export function BottomNav() {
                     </ul>
                   </div>
                 ))}
+                <div className="border-t border-border pt-4">
+                  <div className="mb-2">
+                    <h3 className="text-sm font-semibold">ব্যবসার তথ্য ব্যাকআপ</h3>
+                    <p className="text-xs text-muted-foreground">সব তথ্য এক Excel ফাইলে</p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full justify-start"
+                    disabled={backupLoading || !user}
+                    onClick={async () => {
+                      if (!user) return;
+                      setBackupLoading(true);
+                      setBackup(null);
+                      try {
+                        setBackup(await createBusinessBackup(user.id));
+                        toast.success("Excel ব্যাকআপ তৈরি হয়েছে");
+                      } catch {
+                        toast.error("ব্যাকআপ তৈরি করা যায়নি। আবার চেষ্টা করুন।");
+                      } finally {
+                        setBackupLoading(false);
+                      }
+                    }}
+                  >
+                    {backupLoading ? <LoaderCircle className="animate-spin" /> : <FileSpreadsheet />}
+                    {backupLoading ? "ব্যাকআপ তৈরি হচ্ছে…" : "Excel ব্যাকআপ তৈরি করুন"}
+                  </Button>
+                  {backup ? (
+                    <Button
+                      type="button"
+                      className="mt-2 w-full justify-start"
+                      onClick={() => downloadBusinessBackup(backup.blob, backup.filename)}
+                    >
+                      <Download />
+                      Excel ফাইল ডাউনলোড করুন
+                    </Button>
+                  ) : null}
+                </div>
                 <div className="border-t border-border pt-3">
                   <div className="flex items-center gap-2.5 px-2 py-2">
                     <div className="size-9 rounded-full bg-gold grid place-items-center text-gold-foreground font-bold text-sm">

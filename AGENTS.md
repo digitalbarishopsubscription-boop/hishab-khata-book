@@ -1,0 +1,1 @@
+- Keep client-generated business backup queries, workbook assembly, and download helpers in a browser-safe library module, separate from navigation UI, so exports stay reusable and navigation stays focused.
