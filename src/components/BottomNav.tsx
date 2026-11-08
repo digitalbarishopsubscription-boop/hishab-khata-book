@@ -110,7 +110,7 @@ export function BottomNav() {
                       onClick={() => setOpen(false)}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "flex aspect-[1.2] min-h-24 flex-col items-center justify-center gap-2 rounded-xl border bg-card px-2 text-center transition-colors",
+                        "flex aspect-[1.65] min-h-16 flex-col items-center justify-center gap-2 rounded-xl border bg-card px-2 text-center transition-colors",
                         active
                           ? "border-primary/40 bg-accent text-accent-foreground"
                           : "border-border text-foreground hover:bg-accent/60",
@@ -124,7 +124,7 @@ export function BottomNav() {
                 <Button
                   type="button"
                   variant="ghost"
-                  className="h-auto min-h-24 aspect-[1.2] flex-col gap-2 whitespace-normal rounded-xl border border-border px-2 text-center"
+                  className="h-auto min-h-16 aspect-[1.65] flex-col gap-2 whitespace-normal rounded-xl border border-border px-2 text-center"
                   disabled={backupLoading || !user}
                   onClick={async () => {
                     if (!user) return;
@@ -157,30 +157,28 @@ export function BottomNav() {
                 </Button>
               ) : null}
               <div className="mt-5 border-t border-border pt-3">
-                <div className="border-t border-border pt-3">
-                  <div className="flex items-center gap-2.5 px-2 py-2">
-                    <div className="size-9 rounded-full bg-gold grid place-items-center text-gold-foreground font-bold text-sm">
-                      {user?.email?.[0]?.toUpperCase() ?? "M"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">
-                        {user?.user_metadata?.owner_name ?? "মালিক"}
-                      </div>
-                      <div className="text-[11px] text-muted-foreground truncate">{user?.email}</div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      aria-label="লগআউট"
-                      onClick={() => {
-                        setOpen(false);
-                        signOut();
-                      }}
-                    >
-                      <LogOut className="size-4" />
-                    </Button>
+                <div className="flex items-center gap-2.5 px-2 py-2">
+                  <div className="size-9 rounded-full bg-gold grid place-items-center text-gold-foreground font-bold text-sm">
+                    {user?.email?.[0]?.toUpperCase() ?? "M"}
                   </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium truncate">
+                      {user?.user_metadata?.owner_name ?? "মালিক"}
+                    </div>
+                    <div className="text-[11px] text-muted-foreground truncate">{user?.email}</div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label="লগআউট"
+                    onClick={() => {
+                      setOpen(false);
+                      signOut();
+                    }}
+                  >
+                    <LogOut className="size-4" />
+                  </Button>
                 </div>
               </div>
             </SheetContent>
