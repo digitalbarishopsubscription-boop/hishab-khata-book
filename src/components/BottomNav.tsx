@@ -3,7 +3,7 @@ import {
   LayoutDashboard, ShoppingCart, BookOpen, Users, Menu,
   Truck, ShoppingBag, Package, FileText, Receipt, Wallet,
   UserCog, Building2, BarChart3, Bot, Bell, GraduationCap, Settings,
-  HandCoins, LogOut, Download, FileSpreadsheet, LoaderCircle,
+  HandCoins, LogOut, Download, FileSpreadsheet, LoaderCircle, type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -20,34 +20,21 @@ const primary = [
   { title: "কাস্টমার", url: "/customers", icon: Users },
 ];
 
-const moreGroups: { label: string; items: { title: string; url: string; icon: any }[] }[] = [
-  {
-    label: "মূল",
-    items: [{ title: "এআই সহকারী", url: "/ai-assistant", icon: Bot }],
-  },
-  {
-    label: "ব্যবসায়িক",
-    items: [
-      { title: "সাপ্লায়ার", url: "/suppliers", icon: Truck },
-      { title: "পেমেন্ট গ্রহণ", url: "/payments", icon: HandCoins },
-      { title: "ক্রয়", url: "/purchases", icon: ShoppingBag },
-      { title: "ইনভেন্টরি", url: "/inventory", icon: Package },
-      { title: "ইনভয়েস", url: "/invoices", icon: FileText },
-      { title: "খরচ", url: "/expenses", icon: Receipt },
-      { title: "আর্থিক", url: "/finance", icon: Wallet },
-    ],
-  },
-  {
-    label: "ব্যবস্থাপনা",
-    items: [
-      { title: "কর্মচারী", url: "/employees", icon: UserCog },
-      { title: "ব্রাঞ্চ", url: "/branches", icon: Building2 },
-      { title: "রিপোর্ট", url: "/reports", icon: BarChart3 },
-      { title: "নোটিফিকেশন", url: "/notifications", icon: Bell },
-      { title: "টিউটোরিয়াল", url: "/tutorial", icon: GraduationCap },
-      { title: "সেটিংস", url: "/settings", icon: Settings },
-    ],
-  },
+const moreItems: { title: string; url: string; icon: LucideIcon }[] = [
+  { title: "এআই সহকারী", url: "/ai-assistant", icon: Bot },
+  { title: "সাপ্লায়ার", url: "/suppliers", icon: Truck },
+  { title: "পেমেন্ট গ্রহণ", url: "/payments", icon: HandCoins },
+  { title: "ক্রয়", url: "/purchases", icon: ShoppingBag },
+  { title: "ইনভেন্টরি", url: "/inventory", icon: Package },
+  { title: "ইনভয়েস", url: "/invoices", icon: FileText },
+  { title: "খরচ", url: "/expenses", icon: Receipt },
+  { title: "আর্থিক", url: "/finance", icon: Wallet },
+  { title: "কর্মচারী", url: "/employees", icon: UserCog },
+  { title: "ব্রাঞ্চ", url: "/branches", icon: Building2 },
+  { title: "রিপোর্ট", url: "/reports", icon: BarChart3 },
+  { title: "নোটিফিকেশন", url: "/notifications", icon: Bell },
+  { title: "টিউটোরিয়াল", url: "/tutorial", icon: GraduationCap },
+  { title: "সেটিংস", url: "/settings", icon: Settings },
 ];
 
 export function BottomNav() {
@@ -56,9 +43,7 @@ export function BottomNav() {
   const [backupLoading, setBackupLoading] = useState(false);
   const [backup, setBackup] = useState<{ blob: Blob; filename: string } | null>(null);
   const { user, signOut } = useAuth();
-  const moreActive = moreGroups.some((group) =>
-    group.items.some((item) => pathname === item.url || pathname.startsWith(`${item.url}/`)),
-  );
+  const moreActive = moreItems.some((item) => pathname === item.url || pathname.startsWith(`${item.url}/`));
 
   return (
     <nav
@@ -104,106 +89,96 @@ export function BottomNav() {
                 <span>আরও</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[85vw] sm:w-96 overflow-y-auto">
-              <SheetHeader>
+            <SheetContent side="bottom" className="h-[100dvh] w-full max-w-none overflow-y-auto rounded-t-2xl p-4 sm:p-6">
+              <SheetHeader className="mb-5 pr-10 text-left">
                 <SheetTitle className="flex items-center gap-2.5">
                   <img
                     src="/logo.png"
                     alt="হিসাব পত্র"
                     className="h-8 w-auto rounded-lg bg-white p-0.5 shadow-sm"
                   />
-                  <span className="text-display">হিসাব পত্র</span>
+                  <span className="text-display">আরও অপশন</span>
                 </SheetTitle>
               </SheetHeader>
-              <div className="mt-4 space-y-5">
-                {moreGroups.map((g) => (
-                  <div key={g.label}>
-                    <div className="px-1 mb-2 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                      {g.label}
-                    </div>
-                    <ul className="space-y-1">
-                      {g.items.map((item) => {
-                        const active = pathname === item.url;
-                        return (
-                          <li key={item.title}>
-                            <Link
-                              to={item.url}
-                              onClick={() => setOpen(false)}
-                              className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors ${
-                                active
-                                  ? "bg-accent text-accent-foreground"
-                                  : "text-foreground/80 hover:bg-accent/60"
-                              }`}
-                            >
-                              <item.icon className="size-4" />
-                              <span>{item.title}</span>
-                            </Link>
-                          </li>
-                        );
-                      })}
-                    </ul>
+              <div className="grid grid-cols-3 gap-3">
+                {moreItems.map((item) => {
+                  const active = pathname === item.url || pathname.startsWith(`${item.url}/`);
+                  return (
+                    <Link
+                      key={item.title}
+                      to={item.url}
+                      onClick={() => setOpen(false)}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "flex aspect-[1.65] min-h-16 flex-col items-center justify-center gap-2 rounded-xl border bg-card px-2 text-center transition-colors",
+                        active
+                          ? "border-primary/40 bg-accent text-accent-foreground"
+                          : "border-border text-foreground hover:bg-accent/60",
+                      )}
+                    >
+                      <item.icon className="size-6 text-primary" />
+                      <span className="text-xs font-medium leading-snug">{item.title}</span>
+                    </Link>
+                  );
+                })}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-auto min-h-16 aspect-[1.65] flex-col gap-2 whitespace-normal rounded-xl border border-border px-2 text-center"
+                  disabled={backupLoading || !user}
+                  onClick={async () => {
+                    if (!user) return;
+                    setBackupLoading(true);
+                    setBackup(null);
+                    try {
+                      setBackup(await createBusinessBackup(user.id));
+                      toast.success("Excel ব্যাকআপ তৈরি হয়েছে");
+                    } catch {
+                      toast.error("ব্যাকআপ তৈরি করা যায়নি। আবার চেষ্টা করুন।");
+                    } finally {
+                      setBackupLoading(false);
+                    }
+                  }}
+                >
+                  {backupLoading ? <LoaderCircle className="size-6 animate-spin" /> : <FileSpreadsheet className="size-6 text-primary" />}
+                  <span className="text-xs font-medium leading-snug">
+                    {backupLoading ? "তৈরি হচ্ছে…" : "ব্যাকআপ ফাইল"}
+                  </span>
+                </Button>
+              </div>
+              {backup ? (
+                <Button
+                  type="button"
+                  className="mt-3 w-full"
+                  onClick={() => downloadBusinessBackup(backup.blob, backup.filename)}
+                >
+                  <Download />
+                  Excel ফাইল ডাউনলোড করুন
+                </Button>
+              ) : null}
+              <div className="mt-5 border-t border-border pt-3">
+                <div className="flex items-center gap-2.5 px-2 py-2">
+                  <div className="size-9 rounded-full bg-gold grid place-items-center text-gold-foreground font-bold text-sm">
+                    {user?.email?.[0]?.toUpperCase() ?? "M"}
                   </div>
-                ))}
-                <div className="border-t border-border pt-4">
-                  <div className="mb-2">
-                    <h3 className="text-sm font-semibold">ব্যবসার তথ্য ব্যাকআপ</h3>
-                    <p className="text-xs text-muted-foreground">সব তথ্য এক Excel ফাইলে</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium truncate">
+                      {user?.user_metadata?.owner_name ?? "মালিক"}
+                    </div>
+                    <div className="text-[11px] text-muted-foreground truncate">{user?.email}</div>
                   </div>
                   <Button
                     type="button"
-                    variant="outline"
-                    className="w-full justify-start"
-                    disabled={backupLoading || !user}
-                    onClick={async () => {
-                      if (!user) return;
-                      setBackupLoading(true);
-                      setBackup(null);
-                      try {
-                        setBackup(await createBusinessBackup(user.id));
-                        toast.success("Excel ব্যাকআপ তৈরি হয়েছে");
-                      } catch {
-                        toast.error("ব্যাকআপ তৈরি করা যায়নি। আবার চেষ্টা করুন।");
-                      } finally {
-                        setBackupLoading(false);
-                      }
+                    variant="ghost"
+                    size="icon"
+                    aria-label="লগআউট"
+                    onClick={() => {
+                      setOpen(false);
+                      signOut();
                     }}
                   >
-                    {backupLoading ? <LoaderCircle className="animate-spin" /> : <FileSpreadsheet />}
-                    {backupLoading ? "ব্যাকআপ তৈরি হচ্ছে…" : "Excel ব্যাকআপ তৈরি করুন"}
+                    <LogOut className="size-4" />
                   </Button>
-                  {backup ? (
-                    <Button
-                      type="button"
-                      className="mt-2 w-full justify-start"
-                      onClick={() => downloadBusinessBackup(backup.blob, backup.filename)}
-                    >
-                      <Download />
-                      Excel ফাইল ডাউনলোড করুন
-                    </Button>
-                  ) : null}
-                </div>
-                <div className="border-t border-border pt-3">
-                  <div className="flex items-center gap-2.5 px-2 py-2">
-                    <div className="size-9 rounded-full bg-gold grid place-items-center text-gold-foreground font-bold text-sm">
-                      {user?.email?.[0]?.toUpperCase() ?? "M"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">
-                        {user?.user_metadata?.owner_name ?? "মালিক"}
-                      </div>
-                      <div className="text-[11px] text-muted-foreground truncate">{user?.email}</div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setOpen(false);
-                        signOut();
-                      }}
-                      className="p-1.5 rounded-md hover:bg-accent"
-                      title="লগআউট"
-                    >
-                      <LogOut className="size-4" />
-                    </button>
-                  </div>
                 </div>
               </div>
             </SheetContent>
